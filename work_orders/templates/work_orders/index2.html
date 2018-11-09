@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %} Welcome {{ user.username }}{% endblock title %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+          <div class="jumbotron">
+            <h4 class="display-3">User: {{ user.username }} </h4>
+            <hr class="my-4">
+            <ul class="nav justify-content-end">
+              <li class="nav-item">
+                <a class="nav-link active" href="{% url 'work_orders:clockin' %}"><i class="material-icons">alarm_add</i> Clock in</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'work_orders:clockout' %}"><i class="material-icons">alarm_off</i> Clock out</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"><i class="material-icons">flight_takeoff</i> Logout</a>
+              </li>
+           </ul>
+          </div>
+      </div>
+    </div>
+    <div class="row">
+
+      <div class="col-6">
+        <h3>Available tasks:</h3>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col"># Work Order</th>
+              <th scope="col">Task</th>
+            </tr>
+          </thead>
+        </table>
+            <div class="form-group">
+              <!-- <label for="exampleFormControlSelect2">Available tasks</label> -->
+              <select multiple class="form-control" id="exampleFormControlSelect2">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </select>
+            </div>
+      </div>
+
+      <div class="col-6">
+        <h3>Currency working:</h3>
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col"># Work Order</th>
+                <th scope="col">Task</th>
+              </tr>
+            </thead>
+          </table>
+        <div class="form-group">
+          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <h3>Clock In/ Out:</h3>
+          <div class="form-group">
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+          </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock content %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block statics %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock statics %}
+{% block title %}Login{% endblock title %}
+{% block content %}
+
+  <div class="row">
+
+
+      <div class="col-10 col-md-4 mx-auto py-5">
+
+        <form class="form-type-material" method="post">{% csrf_token %}
+          {{form.as_p}}
+          <div class="form-group">
+            <button class="btn btn-bold btn-block btn-primary" type="submit">Login</button>
+          </div>
+        </form>
+        <hr class="w-30px">
+
+      <!-- </div> -->
+    </div>
+   </div>
+
+
+
+{% endblock content %}
