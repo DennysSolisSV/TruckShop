@@ -1,4 +1,4 @@
 # TruckShop
 
 
-This app is base in a truck shop, where they need work orders register the time that their mechanics take for fix the problems on the trucks , and then they can bill the clients.
+I'm bulding a solution for a Truck Shop, with this app they will have a better administration
