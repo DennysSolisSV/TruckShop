@@ -1,30 +1,36 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View
+from django.views.generic import TemplateView, View
 from django.contrib.auth.models import Group
 
+from .models import Task
 
-class MainView(LoginRequiredMixin, View):
+
+class MainView(LoginRequiredMixin, TemplateView):
+
     def get(self, request, *args, **kwargs):
-        # verify that the user is mechanic
         user = request.user
-
-        if check_group(user, 'Employees'):
-            template = 'index.html'
-        elif check_group(user, 'Mechanics'):
-            template = 'work_orders/index2.html'
+        # verify that the user is mechanic
+        if check_group(user, 'Mechanics'):
+            return redirect('work_orders:time_card')
         else:
-            template = 'work_orders/index3.html'
+            return redirect('work_orders:order')
 
-        return render(request, template)
 
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(MainView, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
-        context['publisher'] = '1'
-        print(context)
+class TimeCardView(LoginRequiredMixin, TemplateView):
+    template_name = 'work_orders/index2.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(TimeCardView, self).get_context_data(
+            *args, **kwargs)
+        task_obj = Task.objects.get_by_user(self.request)
+        context['tasks'] = task_obj
+        print(context['tasks'])  # '
         return context
+
+
+class WorkOrderView(LoginRequiredMixin, View):
+    pass
 
 
 def clock_in(request):
