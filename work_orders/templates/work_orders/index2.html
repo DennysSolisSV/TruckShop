@@ -10,15 +10,31 @@
             <h4 class="display-3">User: {{ user.username }} </h4>
             <hr class="my-4">
             <ul class="nav justify-content-end">
+              <!--  check if the mechanic clock in or start task to disable buttons -->
+              {% if time.clock_in %}
+                {% if currency.clock_in %}
+                  <li class="nav-item">
+                    <a class="btn btn-dark disabled" href="{% url 'work_orders:clockin' %}">Clock in</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="btn btn-dark disabled" href="{% url 'work_orders:clockout' %}">Clock out</a>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a class="btn btn-dark disabled" href="{% url 'work_orders:clockin' %}">Clock in</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="btn btn-danger" href="{% url 'work_orders:clockout' %}">Clock out</a>
+                  </li>
+                {% endif %}
+              {% else %}
               <li class="nav-item">
-                <a class="nav-link active" href="{% url 'work_orders:clockin' %}"><i class="material-icons">alarm_add</i> Clock in</a>
+                <a class="btn btn-primary" href="{% url 'work_orders:clockin' %}">Clock in</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'work_orders:clockout' %}"><i class="material-icons">alarm_off</i> Clock out</a>
+                <a class="btn btn-dark disabled" href="{% url 'work_orders:clockout' %}">Clock out</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"><i class="material-icons">flight_takeoff</i> Logout</a>
-              </li>
+              {% endif %}
            </ul>
           </div>
       </div>
@@ -35,15 +51,35 @@
             </tr>
           </thead>
         </table>
-            <div class="form-group">
-              <select class="form-control" id="FormControlSelect">
-                {% for item in tasks %}
-                 <option>
-                  {{ item.work_order.number_order }}   --------------  {{ item.title }}
+
+
+        <form>
+          <div class="form-group">
+            <select class="form-control" id="exampleFormControlSelect1" name="q">
+              {% for item in task %}
+                 <option value="{{ item.id }}">
+                  {{ item.work_order.number_order }}   --------------   {{ item.title }}
                  </option>
                 {% endfor %}
-              </select>
-            </div>
+            </select>
+          </div>
+
+          <span class="input-group-btn">
+            <!--  check if the mechanic clock in or start task to disable buttons -->
+            {% if time.clock_in %}
+              {% if currency.clock_in %}
+                <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';" disabled="">Start Task</button> 
+                <button class="btn btn-danger" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';">End Task</button>
+              {% else %}
+                <button class="btn btn-primary" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';">Start Task</button> 
+                <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';" disabled>End Task</button>
+              {% endif %}
+            {% else %}
+            <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';" disabled>Start Task</button> 
+            <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';"disabled>End Task</button>
+            {% endif %}
+          </span>
+        </form>     
       </div>
 
       <div class="col-6">
@@ -57,7 +93,7 @@
             </thead>
           </table>
         <div class="form-group">
-          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3">{% if currency %}{{ currency.task.work_order.number_order }} --------------  {{ currency.task.title }}{% endif %}</textarea>
         </div>
       </div>
     </div>
@@ -65,9 +101,18 @@
     <div class="row">
       <div class="col-6">
         <h3>Clock In/ Out:</h3>
-          <div class="form-group">
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-          </div>
+        <ul class="list-group">
+          {% for item in timecard %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ item.time }}
+            {% if item.clock_in %}
+            <span class="badge badge-primary badge-pill">In</span>
+            {% else %}
+            <span class="badge badge-danger badge-pill">out</span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
 

@@ -9,7 +9,7 @@ User = settings.AUTH_USER_MODEL
 
 class TaskQuerySet(models.query.QuerySet):
     def get_by_user(self, user):
-        return self.filter(mechanic=user).order_by('work_order')
+        return self.filter(mechanic=user).order_by('work_order', 'id')
 
 
 class TaskManager(models.Manager):
@@ -53,15 +53,8 @@ class PartsByTask(models.Model):
         return str(self.part)
 
 
-class MechanicTime(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    time = models.DateTimeField(auto_now=True)
-    type_time = models.CharField(max_length=15)
-
-
 class MechachicTimeTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(User)
     time = models.DateTimeField(auto_now=True)
-    type_time = models.CharField(max_length=15)
+    clock_in = models.BooleanField()

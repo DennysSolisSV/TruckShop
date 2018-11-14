@@ -3,7 +3,11 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, View
 from django.contrib.auth.models import Group
 
-from .models import Task
+from timecard.models import TimeDay
+from .models import Task, MechachicTimeTask
+
+from datetime import date
+today = date.today()
 
 
 class MainView(LoginRequiredMixin, TemplateView):
@@ -23,9 +27,32 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(TimeCardView, self).get_context_data(
             *args, **kwargs)
+
+        # getting registers of the tasks. For to the user mechanic
         task_obj = Task.objects.get_by_user(self.request)
-        context['tasks'] = task_obj
-        print(context['tasks'])  # '
+
+        # getting registers for today where the mechanic marked time
+        timecard = TimeDay.objects.filter(
+            user=self.request.user, time__contains=today).order_by('time')
+
+        # getting lastest register for the mechanic, it can be when he clock in or clock out
+        try:
+            time = TimeDay.objects.latest('time')
+        except TimeDay.DoesNotExist:
+            time = None
+
+        try:
+            currency = MechachicTimeTask.objects.filter(
+                user=self.request.user, time__contains=today).latest('time')
+        except MechachicTimeTask.DoesNotExist:
+            currency = None
+
+        context = {
+            'task': task_obj,
+            'timecard': timecard,
+            'time': time,
+            'currency': currency,
+        }
         return context
 
 
@@ -34,10 +61,30 @@ class WorkOrderView(LoginRequiredMixin, View):
 
 
 def clock_in(request):
+    time = TimeDay.objects.create(user=request.user, clock_in=True)
     return redirect('work_orders:index')
 
 
 def clock_out(request):
+    time = TimeDay.objects.create(user=request.user, clock_in=False)
+    return redirect('work_orders:index')
+
+
+def start_task(request):
+    query = request.GET.get('q', None)
+    if query is not None:
+        task = Task.objects.get(id=query)
+        MechachicTimeTask.objects.create(
+            task=task, user=request.user, clock_in=True)
+    return redirect('work_orders:index')
+
+
+def end_task(request):
+    query = request.GET.get('q', None)
+    if query is not None:
+        task = Task.objects.get(id=query)
+        MechachicTimeTask.objects.create(
+            task=task, user=request.user, clock_in=False)
     return redirect('work_orders:index')
 
 
