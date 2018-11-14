@@ -70,21 +70,19 @@ def clock_out(request):
     return redirect('work_orders:index')
 
 
-def start_task(request):
+def start_or_end_task(request):
     query = request.GET.get('q', None)
+    query2 = request.GET.get('type', None)
+
+    if query2 == 'start':
+        clockin = True
+    else:
+        clockin = False
+
     if query is not None:
         task = Task.objects.get(id=query)
         MechachicTimeTask.objects.create(
-            task=task, user=request.user, clock_in=True)
-    return redirect('work_orders:index')
-
-
-def end_task(request):
-    query = request.GET.get('q', None)
-    if query is not None:
-        task = Task.objects.get(id=query)
-        MechachicTimeTask.objects.create(
-            task=task, user=request.user, clock_in=False)
+            task=task, user=request.user, clock_in=clockin)
     return redirect('work_orders:index')
 
 

@@ -53,14 +53,20 @@
         </table>
 
 
-        <form>
+        <form action="{% url 'work_orders:start_or_end' %}">
           <div class="form-group">
             <select class="form-control" id="exampleFormControlSelect1" name="q">
-              {% for item in task %}
-                 <option value="{{ item.id }}">
-                  {{ item.work_order.number_order }}   --------------   {{ item.title }}
-                 </option>
-                {% endfor %}
+              {% if currency.clock_in %}
+                <option value="{{ currency.task.id }}">
+                  {{ currency.task.work_order.number_order }}   --------------   {{ currency.task.title }}
+                </option>
+              {% else %}
+                {% for item in task %}
+                   <option value="{{ item.id }}">
+                    {{ item.work_order.number_order }}   --------------   {{ item.title }}
+                   </option>
+                  {% endfor %}
+              {% endif %}
             </select>
           </div>
 
@@ -68,15 +74,15 @@
             <!--  check if the mechanic clock in or start task to disable buttons -->
             {% if time.clock_in %}
               {% if currency.clock_in %}
-                <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';" disabled="">Start Task</button> 
-                <button class="btn btn-danger" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';">End Task</button>
+                <button class="btn btn-dark" name="type" value="start" type="submit" disabled="">Start Task</button> 
+                <button class="btn btn-danger" name="type" value="end" type="submit">End Task</button>
               {% else %}
-                <button class="btn btn-primary" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';">Start Task</button> 
-                <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';" disabled>End Task</button>
+                <button class="btn btn-primary" name="type" value="start" type="submit" >Start Task</button> 
+                <button class="btn btn-dark" name="type" value="end" type="submit" disabled>End Task</button>
               {% endif %}
             {% else %}
-            <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:start_task' %}';" disabled>Start Task</button> 
-            <button class="btn btn-dark" type="submit" onclick="javascript: form.action='{% url 'work_orders:end_task' %}';"disabled>End Task</button>
+            <button class="btn btn-dark" name="type" value="start"  type="submit" disabled>Start Task</button> 
+            <button class="btn btn-dark" name="type" value="end" type="submit" disabled>End Task</button>
             {% endif %}
           </span>
         </form>     
