@@ -1,4 +1,8 @@
 # TruckShop
 
 
-I'm bulding a solution for a Truck Shop, with this app they will have a better administration
+This is a  solution for a Truck Shop, they will be able to create:
+
+- Work orders
+- Follow the time on the mechanics
+- Parts inventory
