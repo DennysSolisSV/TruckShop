@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import (
-    MainView, TimeCardView, WorkOrderView, clock_in, clock_out, start_or_end_task
+    MainView, TimeCardView, WorkOrderView, clock_in, clock_out, start_or_end_task, WorkOrderdetailView
 )
 app_name = 'work_orders'
 
@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^clockout/$', clock_out, name='clockout'),
     url(r'^start/$', start_or_end_task, name='start_or_end'),
     url(r'^timecard/$', TimeCardView.as_view(), name='time_card'),
-    url(r'^order/$', WorkOrderView.as_view(), name='order'),
+    url(r'^order/(?P<pk>[\w-]+)/$',
+        WorkOrderdetailView.as_view(), name='detail'),
 
 ]

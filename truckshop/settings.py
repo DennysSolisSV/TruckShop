@@ -38,10 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
     'accounts',
     'inventory',
     'truck',
     'timecard',
+    'search',
     'work_orders',
 ]
 
@@ -55,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGOUT_REDIRECT_URL = "/"
 ROOT_URLCONF = 'truckshop.urls'
 
 TEMPLATES = [

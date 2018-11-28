@@ -1,10 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, View
+from django.views.generic import DetailView, TemplateView, ListView
 from django.contrib.auth.models import Group
 
 from timecard.models import TimeDay
-from .models import Task, MechachicTimeTask
+from .models import MechachicTimeTask, Task, WorkOrder
 
 from datetime import date
 today = date.today()
@@ -56,8 +56,13 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class WorkOrderView(LoginRequiredMixin, View):
-    pass
+class WorkOrderView(LoginRequiredMixin, ListView):
+    template_name = 'work_orders/index.html'
+    queryset = WorkOrder.objects.all()
+
+class WorkOrderdetailView(DetailView):
+    queryset = WorkOrder.objects.all()
+    template_name =  'work_orders/work_order.html'
 
 
 def clock_in(request):

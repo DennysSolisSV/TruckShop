@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.db.models import Q
 from accounts.models import Client
 from truck.models import Truck
 from inventory.models import Part
@@ -7,17 +9,24 @@ from inventory.models import Part
 User = settings.AUTH_USER_MODEL
 
 
-class TaskQuerySet(models.query.QuerySet):
-    def get_by_user(self, user):
-        return self.filter(mechanic=user).order_by('work_order', 'id')
+class WorkOrderManager(models.Manager):
+    def search(self, query):
+        lookups = (
+            Q(number_order__icontains=query) |
+            Q(client__name__icontains=query) |
+            Q(truck__fleet__icontains=query)
+        )
+
+        obj = self.get_queryset().filter(lookups).distinct()
+        print(obj)
+        return obj
 
 
 class TaskManager(models.Manager):
-    def get_queryset(self):  # enlazando el queryset
-        return TaskQuerySet(self.model, using=self._db)
-
     def get_by_user(self, request):
-        return self.get_queryset().get_by_user(request.user)
+        user = request.user
+        obj = self.get_queryset().filter(mechanic=user).order_by('work_order', 'id')
+        return obj
 
 
 class WorkOrder(models.Model):
@@ -26,8 +35,13 @@ class WorkOrder(models.Model):
     client = models.ForeignKey(Client)
     truck = models.ForeignKey(Truck)
 
+    objects = WorkOrderManager()
+
     def __str__(self):
         return str(self.number_order) + " -  - " + str(self.client)
+
+    # def get_absolute_url(self):
+    #     return reverse('work_orders:detail', kwargs={'pk': self.id})
 
 
 class Task(models.Model):
