@@ -1,10 +1,9 @@
+from django.views.generic import DetailView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.views.generic import DetailView, TemplateView, ListView
-from django.contrib.auth.models import Group
-
+from django.shortcuts import redirect, render
 from timecard.models import TimeDay
 from .models import MechachicTimeTask, Task, WorkOrder
+from .forms import WorkOrderForm
 
 from datetime import date
 today = date.today()
@@ -18,7 +17,7 @@ class MainView(LoginRequiredMixin, TemplateView):
         if check_group(user, 'Mechanics'):
             return redirect('work_orders:time_card')
         else:
-            return redirect('work_orders:order')
+            return redirect('search:query')
 
 
 class TimeCardView(LoginRequiredMixin, TemplateView):
@@ -56,22 +55,34 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class WorkOrderView(LoginRequiredMixin, ListView):
-    template_name = 'work_orders/index.html'
-    queryset = WorkOrder.objects.all()
+class WorkOrderCreateView(TemplateView):
+    template_name = 'work_orders/work_order_form.html'
+
+    def get(self, request, *args, **kwargs):
+        last_work_order = WorkOrder.objects.latest("number_order")
+        new_work_order = int(last_work_order.number_order) + 1
+        data = {"number_order": new_work_order}
+        work_form = WorkOrderForm(initial=data)
+        context = {
+            "work_form": work_form,
+        }
+        return render(request, self.template_name, context)
+
 
 class WorkOrderdetailView(DetailView):
     queryset = WorkOrder.objects.all()
-    template_name =  'work_orders/work_order.html'
+    template_name = 'work_orders/work_order.html'
 
 
 def clock_in(request):
-    time = TimeDay.objects.create(user=request.user, clock_in=True)
+    time = TimeDay.objects.create(
+        user=request.user, clock_in=True)
     return redirect('work_orders:index')
 
 
 def clock_out(request):
-    time = TimeDay.objects.create(user=request.user, clock_in=False)
+    time = TimeDay.objects.create(
+        user=request.user, clock_in=False)
     return redirect('work_orders:index')
 
 

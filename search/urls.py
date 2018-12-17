@@ -4,5 +4,5 @@ from .views import SearchOrderView
 app_name = 'search'
 
 urlpatterns = [
-    url(r'^order/$', SearchOrderView.as_view(), name='query'),
+    url(r'^$', SearchOrderView.as_view(), name='query'),
 ]

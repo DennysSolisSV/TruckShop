@@ -1,17 +1,21 @@
 from django.conf.urls import url
 
 from .views import (
-    MainView, TimeCardView, WorkOrderView, clock_in, clock_out, start_or_end_task, WorkOrderdetailView
+    MainView, TimeCardView, clock_in,
+    clock_out, start_or_end_task,
+    WorkOrderdetailView, WorkOrderCreateView
 )
+
 app_name = 'work_orders'
 
 urlpatterns = [
     url(r'^$', MainView.as_view(), name='index'),
+    url(r'^create/$', WorkOrderCreateView.as_view(), name='create'),
     url(r'^clockin/$', clock_in, name='clockin'),
     url(r'^clockout/$', clock_out, name='clockout'),
     url(r'^start/$', start_or_end_task, name='start_or_end'),
     url(r'^timecard/$', TimeCardView.as_view(), name='time_card'),
-    url(r'^order/(?P<pk>[\w-]+)/$',
+    url(r'^order/(?P<slug>[\w-]+)/$',
         WorkOrderdetailView.as_view(), name='detail'),
 
 ]
