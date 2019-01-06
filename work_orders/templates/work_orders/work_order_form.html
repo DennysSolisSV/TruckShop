@@ -1,5 +1,131 @@
 {% extends "base.html" %}
 
 {% block content %}
-{{work_form}}
+<div class="container-fluid">
+	<div class="row justify-content-center">
+		<div class="col-12 col-md-6 mx-auto py-5">
+				Work Order: {{work_form.number_order}} {{work_form.date}}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<form>
+			  <div class="form-row">
+			  	<div class="card  col-md-6">
+				  <div class="card-header">
+				    Customer Information
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputCliente">Name:</label>
+				      {{work_form.client}}
+				    </div>
+				  </div>
+			  	</div>
+
+			  	<div class="card  col-md-6">
+				  <div class="card-header">
+				    Vehicle Information
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputCliente">Truck:</label>
+				      {{work_form.truck}}
+				    </div>
+				  </div>
+			  	</div>
+			  </div>
+			</form>
+			<form action="{% url 'work_orders:start_or_end' %}">
+			  <div class="row mx-auto py-5">	
+			  	<div class="col-md-11 ">
+			  		<div class="card">
+					  <div class="card-header">
+					    Work Order Tasks
+					  </div>
+					  	<div class="card-body">
+				          	<table class="table">
+							  <thead>
+							    <tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Task</th>
+							      <th scope="col">Mechanic</th>
+							      <th scope="col">Total Hours</th>
+							    </tr>
+							  </thead>
+							  <tbody>
+							    <tr>
+							      <th scope="row">1</th>
+							      <td>King pins</td>
+							      <td>Otto</td>
+							      <td>( 8 )</td>
+							    </tr>
+							    <tr>
+							      <th scope="row">2</th>
+							      <td>Rear brakes</td>
+							      <td>Thornton</td>
+							      <td>( 7 )</td>
+							    </tr>
+							    <tr>
+							      <th scope="row">3</th>
+							      <td>Front springs</td>
+							      <td>the Bird</td>
+							      <td>( 5 )</td>
+							    </tr>
+							  </tbody>
+							</table>
+				    	</div>	
+			  		</div>
+			  	</div>			    
+				<div class="col-md-1">
+			    	<span class="input-group-btn btn-group-vertical">
+		                <button class="btn btn-dark" name="type" value="add" type="submit">Add task</button> 
+		                <button class="btn btn-dark" name="type" value="edit" type="submit">Edit task</button>
+			            <button class="btn btn-danger" name="type" value="delete"  type="submit" disabled>Delete task</button>
+			        </span>	
+				</div>
+			  </div>
+			          
+			</form>     
+			   
+		</div>
+	</div>
+</div>			  
+			  <!-- <div class="form-group">
+			    <label for="inputAddress">Address</label>
+			    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+			  </div>
+			  <div class="form-group">
+			    <label for="inputAddress2">Address 2</label>
+			    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
+			  </div>
+			  <div class="form-row">
+			    <div class="form-group col-md-6">
+			      <label for="inputCity">City</label>
+			      <input type="text" class="form-control" id="inputCity">
+			    </div>
+			    <div class="form-group col-md-4">
+			      <label for="inputState">State</label>
+			      <select id="inputState" class="form-control">
+			        <option selected>Choose...</option>
+			        <option>...</option>
+			      </select>
+			    </div>
+			    <div class="form-group col-md-2">
+			      <label for="inputZip">Zip</label>
+			      <input type="text" class="form-control" id="inputZip">
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <div class="form-check">
+			      <input class="form-check-input" type="checkbox" id="gridCheck">
+			      <label class="form-check-label" for="gridCheck">
+			        Check me out
+			      </label>
+			    </div>
+			  </div> -->
+			  	
+		
+	
+
 {% endblock %}

@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from timecard.models import TimeDay
 from .models import MechachicTimeTask, Task, WorkOrder
 from .forms import WorkOrderForm
+from truckshop.utils import unique_work_order_number_generator
 
 from datetime import date
 today = date.today()
@@ -59,8 +60,9 @@ class WorkOrderCreateView(TemplateView):
     template_name = 'work_orders/work_order_form.html'
 
     def get(self, request, *args, **kwargs):
-        last_work_order = WorkOrder.objects.latest("number_order")
-        new_work_order = int(last_work_order.number_order) + 1
+        # creating a instance to pass it to the function
+        work_order = WorkOrder.objects.first()
+        new_work_order = unique_work_order_number_generator(work_order)
         data = {"number_order": new_work_order}
         work_form = WorkOrderForm(initial=data)
         context = {
@@ -71,7 +73,7 @@ class WorkOrderCreateView(TemplateView):
 
 class WorkOrderdetailView(DetailView):
     queryset = WorkOrder.objects.all()
-    template_name = 'work_orders/work_order.html'
+    template_name = 'work_orders/work_order_form.html'
 
 
 def clock_in(request):
