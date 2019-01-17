@@ -1,6 +1,7 @@
 
-from django.forms import ModelForm, TextInput, Select
-from .models import WorkOrder
+from django.forms import ModelForm, TextInput, Select, Textarea
+from .models import WorkOrder, Task, PartsByTask
+from bootstrap_modal_forms.mixins import PopRequestMixin, CreateUpdateAjaxMixin
 
 
 class WorkOrderForm(ModelForm):
@@ -18,4 +19,28 @@ class WorkOrderForm(ModelForm):
         }
 
 
-#<input class="form-control" type="text" placeholder="Readonly input here…" readonly>
+class TaskForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = [
+            "work_order",
+            "title",
+            "description",
+            "time_labor",
+            "mechanic",
+        ]
+        widgets = {
+            "work_order": TextInput(attrs={"class": "form-control", "type": "text", "readonly": True}),
+            "title": TextInput(attrs={"class": "form-control"}),
+            "description": Textarea(attrs={"class": "form-control"}),
+            "time_labor": TextInput(attrs={"class": "form-control"}),
+            "mechanic": Select(attrs={"class": "form-control"}),
+        }
+
+class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
+    class Meta:
+        model = PartsByTask
+        exclude = [
+            'task',
+            'subtotal',
+        ]

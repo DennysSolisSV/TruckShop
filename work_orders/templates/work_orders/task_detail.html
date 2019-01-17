@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row justify-content-center">
+		<div class="col-12 col-md-6 mx-auto py-5">
+				Work Order: {{task_form.work_order}}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<form>
+			  <div class="form-row">
+			  	<div class="card  col-md-6">
+				  <div class="card-header">
+				   Task
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputTitle">Title:</label>
+				      {{task_form.title}}
+				    </div>
+				    <div class="form-group">
+				      <label for="inputdescription">Description:</label>
+				      {{task_form.description}}
+				    </div>
+				  </div>
+			  	</div>
+
+			  	<div class="card  col-md-6">
+				  <div class="card-header">
+				    Time
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputMechanic">Mechanic:</label>
+				      {{task_form.mechanic}}
+				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Time labor:</label>
+				      {{task_form.time_labor}}
+				    </div>
+				  </div>
+			  	</div>
+			  </div>
+			</form>
+			<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+  				<div class="modal-dialog" role="document">
+			    	<div class="modal-content"></div>
+			  	</div>
+			</div>
+			  <div class="row mx-auto py-5">	
+			  	<div class="col-md-12 ">
+			  		<div class="card">
+					  <div class="card-header">
+					    Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part"> New part <i class="fas fa-plus-square"></i></button>
+					  </div>
+					  	<div class="card-body">
+				          	<table class="table">
+							  <thead>
+							  	<tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Part #</th>
+							      <th scope="col">Quantity</th>
+							      <th scope="col">Subtotal</th>
+							      <th scope="col">Actions</th>
+							    </tr>
+							  </thead>
+							  <tbody>
+							  	{% for part in parts %}
+							    <tr>
+							      <td scope="row">{{forloop.counter}}</td>
+							      <td>{{part.part}}</td>
+							      <td>{{part.quantity}}</td>
+							      <td>{{part.subtotal}}</td>
+							      <td><a href="" class="add-part"><i class="fas fa-edit"></i></a>&nbsp&nbsp<a href="" title=""><i class="fas fa-trash-alt"></i></a></td>
+							    </tr>							    
+							    {% endfor %}
+							  </tbody>
+							</table>	
+
+				    	</div>	
+			  		</div>
+			  	</div>			    
+				
+			  </div>
+			          
+
+
+
+
+
+
+
+  
+			   
+		</div>
+	</div>
+</div>			  
+
+{% endblock %}
+
+
+
+{% block js %}
+
+<script type="text/javascript">
+  $(function () {
+    // Create book button
+    $(".js-add-part").modalForm({formURL: "{% url 'work_orders:add_part' task_pk %}"});
+
+    
+
+  });
+</script>  
+
+{% endblock %}

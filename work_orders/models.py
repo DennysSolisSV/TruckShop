@@ -78,16 +78,31 @@ class Task(models.Model):
     objects = TaskManager()
 
     def __str__(self):
-        return self.title
+        return self.title + " - " + str(self.work_order.number_order)
+
+    def get_absolute_url(self):
+        return reverse("work_orders:task_detail", kwargs={"pk": self.pk})
 
 
 class PartsByTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     part = models.ForeignKey(Part)
     quantity = models.IntegerField()
+    subtotal = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
 
     def __str__(self):
         return str(self.part)
+
+
+def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
+    if instance.quantity > 0:
+        instance.subtotal = instance.quantity * instance.part.price
+    else:
+        instance.subtotal = 0.00
+
+
+pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
 
 
 class MechachicTimeTask(models.Model):

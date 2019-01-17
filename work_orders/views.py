@@ -1,10 +1,14 @@
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from timecard.models import TimeDay
-from .models import MechachicTimeTask, Task, WorkOrder
-from .forms import WorkOrderForm
+from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
+from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
 from truckshop.utils import unique_work_order_number_generator
+from django.contrib.messages.views import SuccessMessageMixin
+from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
+from django.urls import reverse_lazy
+from django.core.urlresolvers import reverse
 
 from datetime import date
 today = date.today()
@@ -72,8 +76,72 @@ class WorkOrderCreateView(TemplateView):
 
 
 class WorkOrderdetailView(DetailView):
-    queryset = WorkOrder.objects.all()
     template_name = 'work_orders/work_order_form.html'
+
+    def get(self, request, slug, *args, **kwargs):
+        work_order = WorkOrder.objects.get(slug=slug)
+        tasks = Task.objects.filter(work_order=work_order)
+        data = {
+            "number_order": work_order.number_order,
+            "client": work_order.client,
+            "truck": work_order.truck,
+        }
+
+        work_form = WorkOrderForm(initial=data)
+        context = {
+            "work_form": work_form,
+            "tasks": tasks,
+        }
+        return render(request, self.template_name, context)
+
+
+class TaskDetailView(DetailView):
+    template_name = 'work_orders/task_detail.html'
+
+    def get(self, request, pk, *args, **kwargs):
+        task = Task.objects.get(pk=pk)
+        parts = PartsByTask.objects.filter(task=task)
+        data = {
+            "work_order": task.work_order.number_order,
+            "title": task.title,
+            "description": task.description,
+            "time_labor": task.time_labor,
+            "mechanic": task.mechanic,
+        }
+
+        task_form = TaskForm(initial=data)
+        context = {
+            "task_form": task_form,
+            "parts": parts,
+            "task_pk": pk,
+        }
+        return render(request, self.template_name, context)
+
+
+class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
+    template_name = 'work_orders/parts_form.html'
+    form_class = PartsByTaskForm
+    success_message = 'Success: Part was added.'
+    success_url = reverse_lazy('work_orders:task_detail')
+
+    def form_valid(self, form):
+        pk = self.kwargs.get('pk')
+        task = Task.objects.get(pk=pk)
+        obj = form.save(commit=False)
+        obj.task = task
+        return super(AddPartsCreateView, self).form_valid(form)
+
+    def get_success_url(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        url = reverse("work_orders:task_detail", kwargs={"pk": pk})
+        return url
+
+    # def get_initial(self):
+    #     initial_data = super(AddPartsCreateView, self).get_initial()
+    #     initial_data['task'] = get_object_or_404(Task, pk=self.kwargs.get('pk'))
+    #     print(initial_data)
+    #     return initial_data
+        # now the form will be fill with the pk value for task
 
 
 def clock_in(request):
