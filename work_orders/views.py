@@ -1,17 +1,21 @@
-from django.views.generic import DetailView, TemplateView, CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect, render
-from timecard.models import TimeDay
-from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
-from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
-from truckshop.utils import unique_work_order_number_generator
-from django.contrib.messages.views import SuccessMessageMixin
-from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
-from django.urls import reverse_lazy
-from django.core.urlresolvers import reverse
-
 from datetime import date
+from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import DetailView, TemplateView, CreateView
+
+from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
+from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
+from timecard.models import TimeDay
+from truckshop.utils import unique_work_order_number_generator
+
+
 today = date.today()
+
+# Redirect depend of the group for the user
 
 
 class MainView(LoginRequiredMixin, TemplateView):
@@ -32,14 +36,15 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
         context = super(TimeCardView, self).get_context_data(
             *args, **kwargs)
 
-        # getting registers of the tasks. For to the user mechanic
+        # Getting registers of the tasks. For to the user mechanic
         task_obj = Task.objects.get_by_user(self.request)
 
-        # getting registers for today where the mechanic marked time
+        # Getting registers for today where the mechanic marked time
         timecard = TimeDay.objects.filter(
             user=self.request.user, time__contains=today).order_by('time')
 
-        # getting lastest register for the mechanic, it can be when he clock in or clock out
+        # Getting lastest register for the mechanic,
+        # it can be when he clock in or clock out
         try:
             time = TimeDay.objects.latest('time')
         except TimeDay.DoesNotExist:
@@ -58,6 +63,8 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
             'currency': currency,
         }
         return context
+
+# Creating a work order
 
 
 class WorkOrderCreateView(TemplateView):
@@ -135,13 +142,6 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
         pk = self.kwargs.get('pk')
         url = reverse("work_orders:task_detail", kwargs={"pk": pk})
         return url
-
-    # def get_initial(self):
-    #     initial_data = super(AddPartsCreateView, self).get_initial()
-    #     initial_data['task'] = get_object_or_404(Task, pk=self.kwargs.get('pk'))
-    #     print(initial_data)
-    #     return initial_data
-        # now the form will be fill with the pk value for task
 
 
 def clock_in(request):

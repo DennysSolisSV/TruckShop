@@ -37,10 +37,17 @@ class TaskForm(ModelForm):
             "mechanic": Select(attrs={"class": "form-control"}),
         }
 
+
 class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
     class Meta:
         model = PartsByTask
         exclude = [
             'task',
+            'price',
             'subtotal',
         ]
+        widgets = {
+            "part": Select(attrs={"class": "form-control part_task_select"}),
+            "quantity": TextInput(attrs={"class": "form-control"}),
+            
+        }

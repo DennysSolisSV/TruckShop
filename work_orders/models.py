@@ -1,8 +1,10 @@
 from django.db import models
-from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db.models.signals import pre_save
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
+
 from accounts.models import Client
 from inventory.models import Part
 from truck.models import Truck
@@ -12,6 +14,7 @@ User = settings.AUTH_USER_MODEL
 
 
 class WorkOrderManager(models.Manager):
+    # Looking on the different fields
     def search(self, query):
         lookups = (
             Q(number_order__contains=query) |
@@ -24,17 +27,22 @@ class WorkOrderManager(models.Manager):
         print(obj)
         return obj
 
+    # Order query from the lastest
+
     def all(self):
         obj = self.get_queryset().order_by('-number_order')
         return obj
 
 
 class TaskManager(models.Manager):
+    # Getting the tasks that belongs to a user
     def get_by_user(self, request):
         user = request.user
         obj = self.get_queryset().filter(
             mechanic=user).order_by('-number_order', 'id')
         return obj
+
+    # Order query from the lastest
 
     def all(self, request):
         obj = self.get_queryset.all().order_by('-number_order')
@@ -88,6 +96,8 @@ class PartsByTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     part = models.ForeignKey(Part)
     quantity = models.IntegerField()
+    price = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
     subtotal = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
 
@@ -98,6 +108,7 @@ class PartsByTask(models.Model):
 def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
     if instance.quantity > 0:
         instance.subtotal = instance.quantity * instance.part.price
+        instance.price = instance.part.price
     else:
         instance.subtotal = 0.00
 
