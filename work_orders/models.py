@@ -1,6 +1,8 @@
+from decimal import Decimal
 from django.db import models
+from django.db.models import Sum
 from django.db.models import Q
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
@@ -82,6 +84,12 @@ class Task(models.Model):
     time_labor = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
     mechanic = models.ForeignKey(User)
+    total_parts = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
+    total_labor = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
+    total_task = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
 
     objects = TaskManager()
 
@@ -90,6 +98,15 @@ class Task(models.Model):
 
     def get_absolute_url(self):
         return reverse("work_orders:task_detail", kwargs={"pk": self.pk})
+
+
+def pre_save_task_receiver(sender, instance, *args, **kwargs):
+    instance.total_parts = get_sum_total_parts_in_task(instance)
+    instance.total_labor = Decimal(instance.time_labor) * Decimal(115.00)
+    instance.total_task = instance.total_parts + instance.total_labor
+
+
+pre_save.connect(pre_save_task_receiver, sender=Task)
 
 
 class PartsByTask(models.Model):
@@ -116,8 +133,25 @@ def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
 pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
 
 
+def post_save_partsbytask_receiver(sender, instance, *args, **kwargs):
+    qs = Task.objects.get(pk=instance.task.pk)
+    qs.total_parts = get_sum_total_parts_in_task(qs)
+    qs.total_labor = Decimal(qs.time_labor) * Decimal(115.00)
+    qs.total_task = qs.total_parts + qs.total_labor
+    qs.save()
+
+
+post_save.connect(post_save_partsbytask_receiver, sender=PartsByTask)
+
+
 class MechachicTimeTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     user = models.ForeignKey(User)
     time = models.DateTimeField(auto_now=True)
     clock_in = models.BooleanField()
+
+
+def get_sum_total_parts_in_task(instance):
+    parts = PartsByTask.objects.filter(task=instance)
+    out = parts.aggregate(Sum('subtotal'))
+    return out["subtotal__sum"]

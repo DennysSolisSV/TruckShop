@@ -3,9 +3,10 @@ from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, TemplateView, CreateView
+from django.views.generic import DetailView, TemplateView, CreateView, UpdateView, DeleteView
 
 from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
 from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
@@ -114,6 +115,9 @@ class TaskDetailView(DetailView):
             "description": task.description,
             "time_labor": task.time_labor,
             "mechanic": task.mechanic,
+            "total_parts": task.total_parts,
+            "total_labor": task.total_labor,
+            "total_task": task.total_task
         }
 
         task_form = TaskForm(initial=data)
@@ -125,21 +129,74 @@ class TaskDetailView(DetailView):
         return render(request, self.template_name, context)
 
 
+class TaskUpdateView(UpdateView):
+    pass
+
+
 class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
     template_name = 'work_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was added.'
-    success_url = reverse_lazy('work_orders:task_detail')
 
     def form_valid(self, form):
-        pk = self.kwargs.get('pk')
-        task = Task.objects.get(pk=pk)
+        # check if the part is in the task
+        part = form.cleaned_data['part']
+        task = Task.objects.get(pk=self.kwargs.get('pk'))
+        qs = PartsByTask.objects.filter(task=task, part=part)
+        if qs.exists():
+            form.add_error(
+                'part', 'Incident with this part already in this task.')
+            return self.form_invalid(form)
         obj = form.save(commit=False)
         obj.task = task
         return super(AddPartsCreateView, self).form_valid(form)
 
     def get_success_url(self, **kwargs):
         pk = self.kwargs.get('pk')
+        url = reverse("work_orders:task_detail", kwargs={"pk": pk})
+        return url
+
+    def get_context_data(self, **kwargs):
+        # Modal title
+        context = {
+            "title": "Add Part",
+            "button": "Add"
+        }
+        context.update(kwargs)
+        return super(AddPartsCreateView, self).get_context_data(**context)
+
+
+class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
+                     UpdateView):
+
+    model = PartsByTask
+    template_name = 'work_orders/parts_form.html'
+    form_class = PartsByTaskForm
+    success_message = 'Success: Part was updated.'
+
+    def get_context_data(self, **kwargs):
+        # Modal title
+        context = {
+            "title": "Edit Part",
+            "button": "Update"
+        }
+        context.update(kwargs)
+        return super(PartUpdateView, self).get_context_data(**context)
+
+    def get_success_url(self, **kwargs):
+        pk = self.kwargs.get('pk')
+        qs = PartsByTask.objects.get(pk=pk)
+        url = reverse("work_orders:task_detail", kwargs={"pk": qs.task.pk})
+        return url
+
+
+class PartDeleteView(DeleteAjaxMixin, DeleteView):
+    model = PartsByTask
+    template_name = 'work_orders/delete_part_form.html'
+    success_message = 'Success: Part was deleted.'
+
+    def get_success_url(self, **kwargs):
+        pk = self.kwargs.get('id')
         url = reverse("work_orders:task_detail", kwargs={"pk": pk})
         return url
 
@@ -177,3 +234,15 @@ def check_group(user, name_group):
         return True
     else:
         return False
+
+
+def task_time_labor_update_api(request):
+    time_labor = request.POST.get("time_labor")
+    task_pk = request.POST.get("task_pk")
+    if time_labor.isdigit():
+        qs = Task.objects.get(pk=task_pk)
+        qs.time_labor = time_labor
+        qs.save()
+
+    return redirect("work_orders:index")
+    # return redirect(qs.get_absolute_url)

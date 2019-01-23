@@ -1,31 +1,95 @@
 $(document).ready(function(){
-	
+ 	
 	// get price and parts existence in part_task form
 
 	$(document).on('change', '.part_task_select', function(event) {
-
-		// getting data from the form
-		var partForm = $(".parts_task");
-		var actionEndPoint = partForm.attr("data-endpoint");
-        var httpMethod = partForm.attr("method");
-        // asigned the selected value.
-        var formData = { id : $(".part_task_select option:selected").val() }
-
-     	// ajax request
-
-     	$.ajax({
-            url: actionEndPoint,
-            method: "GET",
-            data: formData,
-            success: function(data){
-              var partSpan = partForm.find(".Part");
-              partSpan.html("Price: " + data.price)
-              var quantitySpan = partForm.find(".Quantity");
-              quantitySpan.html("Existence: " + data.existence)
-            },
-            error: function(errorData){
-               console.log("error")
-            }
-      }); // end ajax
+      partTaskAjax();		
     });// end change event
+
+
+  $(document).on('click', 'input:text[name=quantity]', function(event){
+      partTaskAjax();
+  });// end change event
+
+  
+
+
+  function partTaskAjax(){ 
+
+    // getting data from the form
+    var partForm = $(".parts_task");
+    var actionEndPoint = partForm.attr("data-endpoint");
+    var httpMethod = partForm.attr("method");
+    // asigned the selected value.
+    var formData = { id : $(".part_task_select option:selected").val() }
+    var partSpan = partForm.find(".Part");
+    var quantitySpan = partForm.find(".Quantity");
+      // ajax request
+    if (formData.id != ""){
+      $.ajax({
+          url: actionEndPoint,
+          method: "GET",
+          data: formData,
+          success: function(data){
+            partSpan.html("Price: " + data.price)
+            quantitySpan.html("Existence: " + data.existence)
+          },
+          error: function(errorData){
+             partSpan.html("")
+             quantitySpan.html("")
+          }
+      }); // end ajax
+
+    }
+  }// end partTaskAjax
+
+
+  var taskForm = $(".task-form");
+  var timeLaborInput = taskForm.find("[name='time_labor']");
+  var typingTimer;
+  var typingInterval = 1000; // 0.5 second
+  var taskBtn = taskForm.find("[type='submit']")
+
+  timeLaborInput.keyup(function(event){
+    // key released
+    clearTimeout(typingTimer)
+
+    if (timeLaborInput.val() != ""){
+    typingTimer = setTimeout(performUpdate, typingInterval)
+    }
+  })
+
+  timeLaborInput.keydown(function(event){
+    // key pressed limpia una variable de tiempo
+    clearTimeout(typingTimer)
+  })
+
+  function performUpdate(){ 
+    
+    // getting data from the form
+    // var partForm = $(".parts_task");
+    var actionEndPoint = taskForm.attr("data-endpoint");
+    var httpMethod = taskForm.attr("method");
+    var taskPk = taskForm.attr("task-pk");
+    // asigned the selected value.
+    var formData = { 
+      time_labor : timeLaborInput.val(),
+      task_pk: taskPk 
+    }
+    
+      // ajax request
+    
+      $.ajax({
+          url: actionEndPoint,
+          method: httpMethod,
+          data: formData,
+          success: function(data){
+            console.log("good")
+          },
+          error: function(errorData){
+             console.log("bad")
+          }
+      }); // end ajax
+  }
+  console.log(timeLaborInput.val());
 });

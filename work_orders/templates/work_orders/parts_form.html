@@ -5,7 +5,7 @@
   {% csrf_token %}
 
   <div class="modal-header">
-    <h3 class="modal-title">Add parts</h3>
+    <h3 class="modal-title">{{title}}</h3>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -22,7 +22,7 @@
     {% for field in form %}
       <div class="form-group">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{field}}<span class="{{ field.label }}">Price: $0.00</span>
+        {{field}}<span class="{{ field.label }}"></span>
         <div class="{% if field.errors %} invalid{% endif %}">
           {% for error in field.errors %}
             <p class="help-block">{{ error }}</p>
@@ -33,7 +33,7 @@
   </div>
 
   <div class="modal-footer">
-    <button type="button" class="submit-btn btn btn-primary">Add</button>
+    <button type="button" class="submit-btn btn btn-primary">{{button}}</button>
   </div>
 
 </form>

@@ -10,9 +10,4 @@ def get_price_api(request):
             "price": obj.price,
             "existence": obj.existence
         }
-    else:
-        part_data = {
-            "price": "0.00",
-            "existence": "0"
-        }
     return JsonResponse(part_data)

@@ -10,7 +10,8 @@
 	</div>
 	<div class="row">
 		<div class="col-12">
-			<form>
+			<form method="POST" action="{% url 'work_orders:update_task' %}" data-endpoint="{% url 'work_orders:update_task_time_labor_ajax' %}" class="task-form" task-pk="{{task_pk}}">
+				{% csrf_token %}
 			  <div class="form-row">
 			  	<div class="card  col-md-6">
 				  <div class="card-header">
@@ -28,7 +29,7 @@
 				  </div>
 			  	</div>
 
-			  	<div class="card  col-md-6">
+			  	<div class="card  col-md-3">
 				  <div class="card-header">
 				    Time
 				  </div>
@@ -40,6 +41,29 @@
 				    <div class="form-group">
 				      <label for="inputTime">Time labor:</label>
 				      {{task_form.time_labor}}
+				    </div>
+				  </div>
+			  	</div>
+			  	<div class="card  col-md-3">
+				  <div class="card-header">
+				    Totals
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputMechanic">Total parts:</label>
+				      {{task_form.total_parts}}
+				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Total labor:</label>
+				      {{task_form.total_labor}}
+				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Total task:</label>
+				      {{task_form.total_task}}
+				    </div>
+				    <div class="form-group">				    	
+				      <button type="submit" class="btn btn-primary float-right">Save</button>
+				      <button type="button" class="btn btn-danger float-right">Cancel</button>
 				    </div>
 				  </div>
 			  	</div>
@@ -72,7 +96,12 @@
 							      <td>{{part.quantity}}</td>
 							      <td>{{part.price}}</td>
 							      <td>{{part.subtotal}}</td>
-							      <td><a href="" class="add-part"><i class="fas fa-edit"></i></a>&nbsp&nbsp<a href="" title=""><i class="fas fa-trash-alt"></i></a></td>
+							      <td>
+							      	<button type="button" class="update-part btn btn-sm btn-primary" data-id="{% url 'work_orders:update_part' part.pk %}"><i class="fas fa-edit"></i>
+							      	</button>
+							      	<button type="button" class="delete-part btn btn-sm btn-danger" data-id="{% url 'work_orders:delete_part' part.pk part.task.pk %}"><i class="fas fa-trash-alt"></i>
+							      	</button>
+							      </td>
 							    </tr>							    
 							    {% endfor %}
 							  </tbody>
@@ -98,9 +127,21 @@
 
 {% block js %}
 <script>
-// lauch modal add part button
+	
 	$(function () {
+		// lauch modal add part button
     	$(".js-add-part").modalForm({formURL: "{% url 'work_orders:add_part' task_pk %}"});
+
+    	// Update part button
+	    $(".update-part").each(function () {
+	      $(this).modalForm({formURL: $(this).data('id')});
+	    });
+
+	    // Delete part button
+	    $(".delete-part").each(function () {
+	      $(this).modalForm({formURL: $(this).data('id')});
+	    });
+
 	});
 </script>
 

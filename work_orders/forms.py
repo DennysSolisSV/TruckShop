@@ -1,5 +1,4 @@
-
-from django.forms import ModelForm, TextInput, Select, Textarea
+from django.forms import ModelForm, TextInput, Select, Textarea, ValidationError
 from .models import WorkOrder, Task, PartsByTask
 from bootstrap_modal_forms.mixins import PopRequestMixin, CreateUpdateAjaxMixin
 
@@ -28,13 +27,19 @@ class TaskForm(ModelForm):
             "description",
             "time_labor",
             "mechanic",
+            "total_parts",
+            "total_labor",
+            "total_task"
         ]
         widgets = {
             "work_order": TextInput(attrs={"class": "form-control", "type": "text", "readonly": True}),
             "title": TextInput(attrs={"class": "form-control"}),
             "description": Textarea(attrs={"class": "form-control"}),
-            "time_labor": TextInput(attrs={"class": "form-control"}),
+            "time_labor": TextInput(attrs={'class':'form-control' , 'autocomplete': 'off','pattern':'[0-9]+', 'title':'Enter numbers Only '}),
             "mechanic": Select(attrs={"class": "form-control"}),
+            "total_parts": TextInput(attrs={"class": "form-control", "readonly": True}),
+            "total_labor": TextInput(attrs={"class": "form-control", "readonly": True}),
+            "total_task": TextInput(attrs={"class": "form-control", "readonly": True}),
         }
 
 
@@ -49,5 +54,5 @@ class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
         widgets = {
             "part": Select(attrs={"class": "form-control part_task_select"}),
             "quantity": TextInput(attrs={"class": "form-control"}),
-            
+
         }
