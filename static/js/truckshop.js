@@ -13,7 +13,7 @@ $(document).ready(function(){
 
   
 
-
+  // cheking existence
   function partTaskAjax(){ 
 
     // getting data from the form
@@ -43,12 +43,15 @@ $(document).ready(function(){
     }
   }// end partTaskAjax
 
-
+  // updating time labor in task
   var taskForm = $(".task-form");
   var timeLaborInput = taskForm.find("[name='time_labor']");
   var typingTimer;
   var typingInterval = 1000; // 0.5 second
   var taskBtn = taskForm.find("[type='submit']")
+  var total_partSpan = taskForm.find("#id_total_parts");
+  var total_laborSpan = taskForm.find("#id_total_labor");
+  var total_taskSpan = taskForm.find("#id_total_task");
 
   timeLaborInput.keyup(function(event){
     // key released
@@ -84,12 +87,13 @@ $(document).ready(function(){
           method: httpMethod,
           data: formData,
           success: function(data){
-            console.log("good")
+            total_partSpan.val(data.total_parts)
+            total_laborSpan.val(data.total_labor)
+            total_taskSpan.val(data.total_task)
           },
           error: function(errorData){
              console.log("bad")
           }
       }); // end ajax
   }
-  console.log(timeLaborInput.val());
 });

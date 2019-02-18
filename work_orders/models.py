@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import Sum
 from django.db.models import Q
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
@@ -132,7 +132,18 @@ def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
 
 pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
 
+# update totals in task aster delete part
+def post_delete_partsbytask_receiver(sender, instance, *args, **kwargs):
+    qs = Task.objects.get(pk=instance.task.pk)
+    qs.total_parts = get_sum_total_parts_in_task(qs)
+    qs.total_labor = Decimal(qs.time_labor) * Decimal(115.00)
+    qs.total_task = qs.total_parts + qs.total_labor
+    qs.save()
 
+
+post_delete.connect(post_delete_partsbytask_receiver, sender=PartsByTask)
+
+# update totals in task after save
 def post_save_partsbytask_receiver(sender, instance, *args, **kwargs):
     qs = Task.objects.get(pk=instance.task.pk)
     qs.total_parts = get_sum_total_parts_in_task(qs)
@@ -153,5 +164,8 @@ class MechachicTimeTask(models.Model):
 
 def get_sum_total_parts_in_task(instance):
     parts = PartsByTask.objects.filter(task=instance)
-    out = parts.aggregate(Sum('subtotal'))
-    return out["subtotal__sum"]
+    if parts:
+        out = parts.aggregate(Sum('subtotal'))
+        return out["subtotal__sum"]
+    else:
+        return Decimal(0)

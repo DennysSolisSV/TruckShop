@@ -239,10 +239,15 @@ def check_group(user, name_group):
 def task_time_labor_update_api(request):
     time_labor = request.POST.get("time_labor")
     task_pk = request.POST.get("task_pk")
-    if time_labor.isdigit():
+    if not time_labor.isalpha():
         qs = Task.objects.get(pk=task_pk)
         qs.time_labor = time_labor
         qs.save()
 
-    return redirect("work_orders:index")
-    # return redirect(qs.get_absolute_url)
+    task_data = {
+        "total_parts": qs.total_parts,
+        "total_labor": qs.total_labor,
+        "total_task": qs.total_task
+    }
+
+    return JsonResponse(task_data)
