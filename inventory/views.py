@@ -8,6 +8,6 @@ def get_price_api(request):
     if obj:
         part_data = {
             "price": obj.price,
-            "existence": obj.existence
+            "available": obj.available
         }
     return JsonResponse(part_data)

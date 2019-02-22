@@ -50,6 +50,7 @@ class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
             'task',
             'price',
             'subtotal',
+            'operation'
         ]
         widgets = {
             "part": Select(attrs={"class": "form-control part_task_select"}),

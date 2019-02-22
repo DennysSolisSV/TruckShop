@@ -24,6 +24,9 @@ $(document).ready(function(){
     var formData = { id : $(".part_task_select option:selected").val() }
     var partSpan = partForm.find(".Part");
     var quantitySpan = partForm.find(".Quantity");
+    var errorLabel = partForm.find(".invalid")
+
+    errorLabel.html("")
       // ajax request
     if (formData.id != ""){
       $.ajax({
@@ -32,7 +35,7 @@ $(document).ready(function(){
           data: formData,
           success: function(data){
             partSpan.html("Price: " + data.price)
-            quantitySpan.html("Existence: " + data.existence)
+            quantitySpan.html("Available: " + data.available)
           },
           error: function(errorData){
              partSpan.html("")
@@ -92,8 +95,14 @@ $(document).ready(function(){
             total_taskSpan.val(data.total_task)
           },
           error: function(errorData){
-             console.log("bad")
+             alert("should be number");
           }
       }); // end ajax
   }
 });
+
+
+//   crear el campo disponible para los partes para validar si se agrega o no
+//   sumar o descontar del campo disponible cuanto se elimine o se agregue parte
+// el boton cancelar del detalle task
+// el boton aceptar del detalle task

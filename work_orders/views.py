@@ -8,7 +8,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, CreateView, UpdateView, DeleteView
 
+
 from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
+from inventory.models import Part
 from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
 from timecard.models import TimeDay
 from truckshop.utils import unique_work_order_number_generator
@@ -141,14 +143,24 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         # check if the part is in the task
         part = form.cleaned_data['part']
+        quantity = form.cleaned_data['quantity']
+        obj_part = Part.objects.get(part_number=part)
         task = Task.objects.get(pk=self.kwargs.get('pk'))
-        qs = PartsByTask.objects.filter(task=task, part=part)
+
+        qs = PartsByTask.objects.filter(task_id=task.id, part_id=part)
         if qs.exists():
             form.add_error(
                 'part', 'Incident with this part already in this task.')
             return self.form_invalid(form)
+
+        if obj_part.available < quantity:
+            form.add_error(
+                'part', 'Incident you do not have enough this part')
+            return self.form_invalid(form)
+
         obj = form.save(commit=False)
         obj.task = task
+        obj.operation = 'Add'
         return super(AddPartsCreateView, self).form_valid(form)
 
     def get_success_url(self, **kwargs):
@@ -173,6 +185,12 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
     template_name = 'work_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was updated.'
+
+    def form_valid(self, form):
+
+        obj = form.save(commit=False)
+        obj.operation = 'Update'
+        return super(PartUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         # Modal title

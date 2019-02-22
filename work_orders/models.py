@@ -117,6 +117,7 @@ class PartsByTask(models.Model):
         default=0.00, max_digits=100, decimal_places=2)
     subtotal = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
+    operation = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
         return str(self.part)
@@ -126,24 +127,55 @@ def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
     if instance.quantity > 0:
         instance.subtotal = instance.quantity * instance.part.price
         instance.price = instance.part.price
+
+        part = Part.objects.get(id=instance.part.id)
+
+        # add or remove to the available in part for add and update
+        if instance.operation == "Add":
+            part.available = part.available - instance.quantity
+
+        if instance.operation == "Update":
+            partbytask = PartsByTask.objects.get(id=instance.id)
+
+            print("old:" + str(partbytask.quantity))
+            print("new:" + str(instance.quantity))
+            if partbytask.quantity > instance.quantity:
+                part.available = part.available + \
+                    (partbytask.quantity - instance.quantity)
+            elif partbytask.quantity < instance.quantity:
+                part.available = part.available - \
+                    (instance.quantity - partbytask.quantity)
+
+        part.save()
+        print(part.available)
     else:
         instance.subtotal = 0.00
 
 
 pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
 
-# update totals in task aster delete part
+# update totals in task after delete part and part.available
+
+
 def post_delete_partsbytask_receiver(sender, instance, *args, **kwargs):
-    qs = Task.objects.get(pk=instance.task.pk)
+    qs = Task.objects.get(id=instance.task.id)
+    part = Part.objects.get(id=instance.part.id)
+
     qs.total_parts = get_sum_total_parts_in_task(qs)
     qs.total_labor = Decimal(qs.time_labor) * Decimal(115.00)
     qs.total_task = qs.total_parts + qs.total_labor
     qs.save()
 
+    part.available = part.available + instance.quantity
+    part.save()
+    print(part.available)
+
 
 post_delete.connect(post_delete_partsbytask_receiver, sender=PartsByTask)
 
 # update totals in task after save
+
+
 def post_save_partsbytask_receiver(sender, instance, *args, **kwargs):
     qs = Task.objects.get(pk=instance.task.pk)
     qs.total_parts = get_sum_total_parts_in_task(qs)
