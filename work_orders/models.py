@@ -154,9 +154,8 @@ def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
 
 pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
 
+
 # update totals in task after delete part and part.available
-
-
 def post_delete_partsbytask_receiver(sender, instance, *args, **kwargs):
     qs = Task.objects.get(id=instance.task.id)
     part = Part.objects.get(id=instance.part.id)

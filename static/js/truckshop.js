@@ -102,7 +102,7 @@ $(document).ready(function(){
 });
 
 
-//   crear el campo disponible para los partes para validar si se agrega o no
-//   sumar o descontar del campo disponible cuanto se elimine o se agregue parte
+
+
 // el boton cancelar del detalle task
 // el boton aceptar del detalle task
