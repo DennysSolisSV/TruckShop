@@ -2,11 +2,14 @@ from datetime import date
 from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import DetailView, TemplateView, CreateView, UpdateView, DeleteView
+from django.urls import reverse
+from django.views.generic import (
+    DetailView, TemplateView,
+    CreateView, UpdateView,
+    DeleteView
+)
 
 
 from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
@@ -105,34 +108,28 @@ class WorkOrderdetailView(DetailView):
         return render(request, self.template_name, context)
 
 
-class TaskDetailView(DetailView):
-    template_name = 'work_orders/task_detail.html'
-
-    def get(self, request, pk, *args, **kwargs):
-        task = Task.objects.get(pk=pk)
-        parts = PartsByTask.objects.filter(task=task)
-        data = {
-            "work_order": task.work_order.number_order,
-            "title": task.title,
-            "description": task.description,
-            "time_labor": task.time_labor,
-            "mechanic": task.mechanic,
-            "total_parts": task.total_parts,
-            "total_labor": task.total_labor,
-            "total_task": task.total_task
-        }
-
-        task_form = TaskForm(initial=data)
-        context = {
-            "task_form": task_form,
-            "parts": parts,
-            "task_pk": pk,
-        }
-        return render(request, self.template_name, context)
-
-
 class TaskUpdateView(UpdateView):
-    pass
+    template_name = 'work_orders/task_detail.html'
+    queryset = Task.objects.all()
+    form_class = TaskForm
+
+    def get_context_data(self, **kwargs):
+        task = self.kwargs.get('pk')
+        parts = PartsByTask.objects.filter(task=task)
+
+        context = {
+            "parts": parts,
+            "task_pk": self.kwargs.get('pk'),
+        }
+
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+    def get_success_url(self, **kwargs):
+        task = Task.objects.get(id=self.kwargs.get('pk'))
+        url = reverse("work_orders:detail", kwargs={
+                      "slug": task.work_order.slug})
+        return url
 
 
 class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
@@ -165,7 +162,7 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
 
     def get_success_url(self, **kwargs):
         pk = self.kwargs.get('pk')
-        url = reverse("work_orders:task_detail", kwargs={"pk": pk})
+        url = reverse("work_orders:update_task", kwargs={"pk": pk})
         return url
 
     def get_context_data(self, **kwargs):
@@ -187,9 +184,17 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
     success_message = 'Success: Part was updated.'
 
     def form_valid(self, form):
+        part = form.cleaned_data['part']
+        obj_part = Part.objects.get(part_number=part)
+        quantity = form.cleaned_data['quantity']
 
         obj = form.save(commit=False)
         obj.operation = 'Update'
+
+        if obj_part.available < quantity:
+            form.add_error(
+                'part', 'Incident you do not have enough this part')
+            return self.form_invalid(form)
         return super(PartUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -204,7 +209,7 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
     def get_success_url(self, **kwargs):
         pk = self.kwargs.get('pk')
         qs = PartsByTask.objects.get(pk=pk)
-        url = reverse("work_orders:task_detail", kwargs={"pk": qs.task.pk})
+        url = reverse("work_orders:update_task", kwargs={"pk": qs.task.pk})
         return url
 
 
@@ -215,19 +220,17 @@ class PartDeleteView(DeleteAjaxMixin, DeleteView):
 
     def get_success_url(self, **kwargs):
         pk = self.kwargs.get('id')
-        url = reverse("work_orders:task_detail", kwargs={"pk": pk})
+        url = reverse("work_orders:update_task", kwargs={"pk": pk})
         return url
 
 
 def clock_in(request):
-    time = TimeDay.objects.create(
-        user=request.user, clock_in=True)
+    TimeDay.objects.create(user=request.user, clock_in=True)
     return redirect('work_orders:index')
 
 
 def clock_out(request):
-    time = TimeDay.objects.create(
-        user=request.user, clock_in=False)
+    TimeDay.objects.create(user=request.user, clock_in=False)
     return redirect('work_orders:index')
 
 

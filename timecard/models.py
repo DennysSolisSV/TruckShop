@@ -5,6 +5,6 @@ User = settings.AUTH_USER_MODEL
 
 
 class TimeDay(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete='CASCADE')
     time = models.DateTimeField(auto_now_add=True)
     clock_in = models.BooleanField()

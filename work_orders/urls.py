@@ -4,7 +4,7 @@ from .views import (
     MainView, TimeCardView, clock_in,
     clock_out, start_or_end_task,
     WorkOrderdetailView, WorkOrderCreateView, 
-    TaskDetailView, TaskUpdateView, AddPartsCreateView, 
+    TaskUpdateView, AddPartsCreateView, 
     PartUpdateView, PartDeleteView, task_time_labor_update_api
 )
 
@@ -20,9 +20,9 @@ urlpatterns = [
     url(r'^order/(?P<slug>[\w-]+)/$',
         WorkOrderdetailView.as_view(), name='detail'),
     url(r'^task/(?P<pk>\d+)/$',
-        TaskDetailView.as_view(), name='task_detail'),
-    url(r'^task/update/$',
         TaskUpdateView.as_view(), name='update_task'),
+    # url(r'^task/save/(?P<pk>\d+)/$',
+    #     TaskUpdateView.as_view(), name='update_task'),
     url(r'^update/timelabor/$',
         task_time_labor_update_api, name='update_task_time_labor_ajax'),
     url(r'^order/task/used/part/(?P<pk>\d+)/$', AddPartsCreateView.as_view(), name='add_part'),

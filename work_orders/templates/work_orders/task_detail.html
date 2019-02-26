@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="container-fluid">
-	<div class="row justify-content-center">
-		<div class="col-12 col-md-6 mx-auto py-5">
-				Work Order: {{task_form.work_order}}
-		</div>
-	</div>
 	<div class="row">
 		<div class="col-12">
-			<form method="POST" action="{% url 'work_orders:update_task' %}" data-endpoint="{% url 'work_orders:update_task_time_labor_ajax' %}" class="task-form" task-pk="{{task_pk}}">
+			<form method="POST" data-endpoint="{% url 'work_orders:update_task_time_labor_ajax' %}" class="task-form" task-pk="{{task_pk}}">
 				{% csrf_token %}
+			  <div class="form-row justify-content-center">
+				<div class="col-12 col-md-6 mx-auto py-5">
+						Work Order: {{form.work_order}}
+				</div>
+			  </div>
 			  <div class="form-row">
 			  	<div class="card  col-md-6">
 				  <div class="card-header">
@@ -20,11 +20,11 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputTitle">Title:</label>
-				      {{task_form.title}}
+				      {{form.title}}
 				    </div>
 				    <div class="form-group">
 				      <label for="inputdescription">Description:</label>
-				      {{task_form.description}}
+				      {{form.description}}
 				    </div>
 				  </div>
 			  	</div>
@@ -36,11 +36,11 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputMechanic">Mechanic:</label>
-				      {{task_form.mechanic}}
+				      {{form.mechanic}}
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Time labor:</label>
-				      {{task_form.time_labor}}
+				      {{form.time_labor}}
 				    </div>
 				  </div>
 			  	</div>
@@ -51,15 +51,15 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputMechanic">Total parts:</label>
-				      <span class="Totalparts">{{task_form.total_parts}}</span>
+				      <span class="Totalparts">{{form.total_parts}}</span>
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Total labor:</label>
-				      <span class="Totallabor">{{task_form.total_labor}}</span>				      
+				      <span class="Totallabor">{{form.total_labor}}</span>				      
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Total task:</label>
-				      {{task_form.total_task}}
+				      {{form.total_task}}
 				    </div>
 				    <div class="form-group">				    	
 				      <button type="submit" class="btn btn-primary float-right">Save</button>
@@ -74,7 +74,7 @@
 			  	<div class="col-md-12 ">
 			  		<div class="card">
 					  <div class="card-header">
-					    Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part"> New part <i class="fas fa-plus-square"></i></button>
+					    Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part" data-id="{% url 'work_orders:add_part' task_pk %}"> New part <i class="fas fa-plus-square"></i></button>
 					  </div>
 					  	<div class="card-body">
 				          	<table class="table">
@@ -130,7 +130,7 @@
 	
 	$(function () {
 		// lauch modal add part button
-    	$(".js-add-part").modalForm({formURL: "{% url 'work_orders:add_part' task_pk %}"});
+    	$(".js-add-part").modalForm({formURL: $(this).data('id')});
 
     	// Update part button
 	    $(".update-part").each(function () {

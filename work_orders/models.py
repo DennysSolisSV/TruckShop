@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 from accounts.models import Client
@@ -46,16 +46,16 @@ class TaskManager(models.Manager):
 
     # Order query from the lastest
 
-    def all(self, request):
-        obj = self.get_queryset.all().order_by('-number_order')
-        return obj
+    # def all(self, request):
+    #     obj = self.get_queryset.all().order_by('-number_order')
+    #     return obj
 
 
 class WorkOrder(models.Model):
     number_order = models.PositiveIntegerField(null=True, blank=True)
     date = models.DateTimeField(auto_now=True)
-    client = models.ForeignKey(Client)
-    truck = models.ForeignKey(Truck)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
     slug = models.CharField(max_length=30, null=True, blank=True)
 
     objects = WorkOrderManager()
@@ -83,7 +83,7 @@ class Task(models.Model):
     description = models.TextField()
     time_labor = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
-    mechanic = models.ForeignKey(User)
+    mechanic = models.ForeignKey(User, on_delete=models.CASCADE)
     total_parts = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
     total_labor = models.DecimalField(
@@ -97,7 +97,7 @@ class Task(models.Model):
         return self.title + " - " + str(self.work_order.number_order)
 
     def get_absolute_url(self):
-        return reverse("work_orders:task_detail", kwargs={"pk": self.pk})
+        return reverse("work_orders:update_task", kwargs={"pk": self.pk})
 
 
 def pre_save_task_receiver(sender, instance, *args, **kwargs):
@@ -111,7 +111,7 @@ pre_save.connect(pre_save_task_receiver, sender=Task)
 
 class PartsByTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    part = models.ForeignKey(Part)
+    part = models.ForeignKey(Part, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
@@ -188,7 +188,7 @@ post_save.connect(post_save_partsbytask_receiver, sender=PartsByTask)
 
 class MechachicTimeTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now=True)
     clock_in = models.BooleanField()
 
