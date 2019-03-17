@@ -1,20 +1,15 @@
 from datetime import date
-from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.views.generic import (
     DetailView, TemplateView,
-    CreateView, UpdateView,
-    DeleteView
 )
 
 
-from .forms import WorkOrderForm, TaskForm, PartsByTaskForm
-from inventory.models import Part
-from .models import MechachicTimeTask, Task, WorkOrder, PartsByTask
+from .forms import WorkOrderForm
+
+from .models import MechachicTimeTask, Task, WorkOrder
 from timecard.models import TimeDay
 from truckshop.utils import unique_work_order_number_generator
 
@@ -93,12 +88,15 @@ class WorkOrderdetailView(DetailView):
 
     def get(self, request, slug, *args, **kwargs):
         work_order = WorkOrder.objects.get(slug=slug)
-        tasks = Task.objects.filter(work_order=work_order)
+        tasks = Task.objects.filter(work_order=work_order).order_by("id")
         data = {
             "number_order": work_order.number_order,
             "client": work_order.client,
             "truck": work_order.truck,
         }
+
+        request.session['work_order_id'] = work_order.id
+        request.session['work_order_slug'] = work_order.slug
 
         work_form = WorkOrderForm(initial=data)
         context = {
@@ -106,122 +104,6 @@ class WorkOrderdetailView(DetailView):
             "tasks": tasks,
         }
         return render(request, self.template_name, context)
-
-
-class TaskUpdateView(UpdateView):
-    template_name = 'work_orders/task_detail.html'
-    queryset = Task.objects.all()
-    form_class = TaskForm
-
-    def get_context_data(self, **kwargs):
-        task = self.kwargs.get('pk')
-        parts = PartsByTask.objects.filter(task=task)
-
-        context = {
-            "parts": parts,
-            "task_pk": self.kwargs.get('pk'),
-        }
-
-        context.update(kwargs)
-        return super().get_context_data(**context)
-
-    def get_success_url(self, **kwargs):
-        task = Task.objects.get(id=self.kwargs.get('pk'))
-        url = reverse("work_orders:detail", kwargs={
-                      "slug": task.work_order.slug})
-        return url
-
-
-class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
-    template_name = 'work_orders/parts_form.html'
-    form_class = PartsByTaskForm
-    success_message = 'Success: Part was added.'
-
-    def form_valid(self, form):
-        # check if the part is in the task
-        part = form.cleaned_data['part']
-        quantity = form.cleaned_data['quantity']
-        obj_part = Part.objects.get(part_number=part)
-        task = Task.objects.get(pk=self.kwargs.get('pk'))
-
-        qs = PartsByTask.objects.filter(task_id=task.id, part_id=part)
-        if qs.exists():
-            form.add_error(
-                'part', 'Incident with this part already in this task.')
-            return self.form_invalid(form)
-
-        if obj_part.available < quantity:
-            form.add_error(
-                'part', 'Incident you do not have enough this part')
-            return self.form_invalid(form)
-
-        obj = form.save(commit=False)
-        obj.task = task
-        obj.operation = 'Add'
-        return super(AddPartsCreateView, self).form_valid(form)
-
-    def get_success_url(self, **kwargs):
-        pk = self.kwargs.get('pk')
-        url = reverse("work_orders:update_task", kwargs={"pk": pk})
-        return url
-
-    def get_context_data(self, **kwargs):
-        # Modal title
-        context = {
-            "title": "Add Part",
-            "button": "Add"
-        }
-        context.update(kwargs)
-        return super(AddPartsCreateView, self).get_context_data(**context)
-
-
-class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
-                     UpdateView):
-
-    model = PartsByTask
-    template_name = 'work_orders/parts_form.html'
-    form_class = PartsByTaskForm
-    success_message = 'Success: Part was updated.'
-
-    def form_valid(self, form):
-        part = form.cleaned_data['part']
-        obj_part = Part.objects.get(part_number=part)
-        quantity = form.cleaned_data['quantity']
-
-        obj = form.save(commit=False)
-        obj.operation = 'Update'
-
-        if obj_part.available < quantity:
-            form.add_error(
-                'part', 'Incident you do not have enough this part')
-            return self.form_invalid(form)
-        return super(PartUpdateView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        # Modal title
-        context = {
-            "title": "Edit Part",
-            "button": "Update"
-        }
-        context.update(kwargs)
-        return super(PartUpdateView, self).get_context_data(**context)
-
-    def get_success_url(self, **kwargs):
-        pk = self.kwargs.get('pk')
-        qs = PartsByTask.objects.get(pk=pk)
-        url = reverse("work_orders:update_task", kwargs={"pk": qs.task.pk})
-        return url
-
-
-class PartDeleteView(DeleteAjaxMixin, DeleteView):
-    model = PartsByTask
-    template_name = 'work_orders/delete_part_form.html'
-    success_message = 'Success: Part was deleted.'
-
-    def get_success_url(self, **kwargs):
-        pk = self.kwargs.get('id')
-        url = reverse("work_orders:update_task", kwargs={"pk": pk})
-        return url
 
 
 def clock_in(request):

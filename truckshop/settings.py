@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'timecard',
     'search',
     'work_orders',
+    'task_orders',
 ]
 
 MIDDLEWARE = [

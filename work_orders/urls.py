@@ -3,9 +3,13 @@ from django.conf.urls import url
 from .views import (
     MainView, TimeCardView, clock_in,
     clock_out, start_or_end_task,
-    WorkOrderdetailView, WorkOrderCreateView, 
-    TaskUpdateView, AddPartsCreateView, 
-    PartUpdateView, PartDeleteView, task_time_labor_update_api
+    WorkOrderdetailView, WorkOrderCreateView,
+    task_time_labor_update_api
+)
+
+from task_orders.views import (
+    TaskUpdateView, AddPartsCreateView,
+    PartUpdateView, PartDeleteView,
 )
 
 app_name = 'work_orders'
@@ -25,8 +29,11 @@ urlpatterns = [
     #     TaskUpdateView.as_view(), name='update_task'),
     url(r'^update/timelabor/$',
         task_time_labor_update_api, name='update_task_time_labor_ajax'),
-    url(r'^order/task/used/part/(?P<pk>\d+)/$', AddPartsCreateView.as_view(), name='add_part'),
-    url(r'^order/task/update/part/(?P<pk>\d+)/$', PartUpdateView.as_view(), name='update_part'),
-    url(r'^order/task/delete/part/(?P<pk>\d+)/(?P<id>\d+)/$', PartDeleteView.as_view(), name='delete_part'),
+    url(r'^order/task/used/part/(?P<pk>\d+)/$',
+        AddPartsCreateView.as_view(), name='add_part'),
+    url(r'^order/task/update/part/(?P<pk>\d+)/$',
+        PartUpdateView.as_view(), name='update_part'),
+    url(r'^order/task/delete/part/(?P<pk>\d+)/(?P<id>\d+)/$',
+        PartDeleteView.as_view(), name='delete_part'),
 
 ]

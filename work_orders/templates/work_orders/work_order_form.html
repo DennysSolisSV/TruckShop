@@ -3,8 +3,8 @@
 {% block content %}
 <div class="container-fluid">
 	<div class="row justify-content-center">
-		<div class="col-12 col-md-6 mx-auto py-5">
-				Work Order: {{work_form.number_order}} {{work_form.date}}
+		<div class="col-12 col-md-6 mx-auto py-5 text-center">
+				<h1> Work Order: {{ work_form.number_order.value }} </h1>
 		</div>
 	</div>
 	<div class="row">
@@ -18,7 +18,7 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputCliente">Name:</label>
-				      {{work_form.client}}
+				      {{ work_form.client }}
 				    </div>
 				  </div>
 			  	</div>
@@ -30,7 +30,7 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputCliente">Truck:</label>
-				      {{work_form.truck}}
+				      {{ work_form.truck }}
 				    </div>
 				  </div>
 			  	</div>
@@ -41,7 +41,7 @@
 			  	<div class="col-md-12 ">
 			  		<div class="card">
 					  <div class="card-header">
-					    Work Order Tasks <button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button>
+					    Work Order Tasks <a href="{% url 'task_orders:create' %}" title=""><button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button></a>
 					  </div>
 					  	<div class="card-body">
 				          	<table class="table">
@@ -57,11 +57,11 @@
 							  <tbody>
 							  	{% for task in tasks %}
 							    <tr>
-							      <th scope="row">{{forloop.counter}}</th>
-							      <td><a href="" data-toggle="popover" title="{{task.title}}" data-content="{{task.description}}">{{task.title}}</a></td>
-							      <td>{{task.mechanic}}</td>
+							      <th scope="row">{{ forloop.counter }}</th>
+							      <td><a href="{{task.get_absolute_url}}" data-toggle="popover" title="{{ task.title }}" data-content="{{task.description}}">{{ task.title }}</a></td>
+							      <td>{{ task.mechanic }}</td>
 							      <td>( {{task.time_labor}} )</td>
-							      <td><a href="{{task.get_absolute_url}}" title=""><i class="fas fa-edit"></i></a>&nbsp&nbsp<a href="" title=""><i class="fas fa-trash-alt"></i></a></td>							      
+							      <td><a href="{{ task.get_absolute_url }}" title=""><i class="fas fa-edit"></i></a>&nbsp&nbsp<a href="" title=""><i class="fas fa-trash-alt"></i></a></td>							      
 							    </tr>							    
 							    {% endfor %}
 							  </tbody>

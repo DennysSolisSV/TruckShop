@@ -105,4 +105,3 @@ $(document).ready(function(){
 
 
 // el boton cancelar del detalle task
-// el boton aceptar del detalle task

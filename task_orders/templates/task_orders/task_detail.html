@@ -8,8 +8,10 @@
 			<form method="POST" data-endpoint="{% url 'work_orders:update_task_time_labor_ajax' %}" class="task-form" task-pk="{{task_pk}}">
 				{% csrf_token %}
 			  <div class="form-row justify-content-center">
-				<div class="col-12 col-md-6 mx-auto py-5">
-						Work Order: {{form.work_order}}
+				<div class="col-12 col-md-6 mx-auto py-5 text-center">
+						<!-- accesing to value in the foreigh key from the from -->
+						<h1> Work Order: {{ request.session.work_order_slug }} </h1>
+						{{ form.work_order.as_hidden }}
 				</div>
 			  </div>
 			  <div class="form-row">
@@ -20,11 +22,11 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputTitle">Title:</label>
-				      {{form.title}}
+				      {{ form.title }}
 				    </div>
 				    <div class="form-group">
 				      <label for="inputdescription">Description:</label>
-				      {{form.description}}
+				      {{ form.description }}
 				    </div>
 				  </div>
 			  	</div>
@@ -36,11 +38,11 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputMechanic">Mechanic:</label>
-				      {{form.mechanic}}
+				      {{ form.mechanic }}
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Time labor:</label>
-				      {{form.time_labor}}
+				      {{ form.time_labor }}
 				    </div>
 				  </div>
 			  	</div>
@@ -51,19 +53,19 @@
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputMechanic">Total parts:</label>
-				      <span class="Totalparts">{{form.total_parts}}</span>
+				      <span class="Totalparts">{{ form.total_parts }}</span>
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Total labor:</label>
-				      <span class="Totallabor">{{form.total_labor}}</span>				      
+				      <span class="Totallabor">{{ form.total_labor }}</span>				      
 				    </div>
 				    <div class="form-group">
 				      <label for="inputTime">Total task:</label>
-				      {{form.total_task}}
+				      {{ form.total_task }}
 				    </div>
 				    <div class="form-group">				    	
-				      <button type="submit" class="btn btn-primary float-right">Save</button>
-				      <button type="button" class="btn btn-danger float-right">Cancel</button>
+				      <button type="submit" class="btn btn-primary float-right" name="save">Save</button>
+				      <button type="submit" class="btn btn-danger float-right" name="cancel">Cancel</button>
 				    </div>
 				  </div>
 			  	</div>
@@ -130,7 +132,9 @@
 	
 	$(function () {
 		// lauch modal add part button
-    	$(".js-add-part").modalForm({formURL: $(this).data('id')});
+		$(".js-add-part").each(function () {
+	      $(this).modalForm({formURL: $(this).data('id')});
+	    });
 
     	// Update part button
 	    $(".update-part").each(function () {

@@ -61,7 +61,7 @@ class WorkOrder(models.Model):
     objects = WorkOrderManager()
 
     def __str__(self):
-        return str(self.number_order) + " -  - " + str(self.client)
+        return str(self.number_order)
 
     def get_absolute_url(self):
         return reverse("work_orders:detail", kwargs={"slug": self.slug})
@@ -139,20 +139,35 @@ def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
 
             print("old:" + str(partbytask.quantity))
             print("new:" + str(instance.quantity))
-            if partbytask.quantity > instance.quantity:
-                part.available = part.available + \
-                    (partbytask.quantity - instance.quantity)
-            elif partbytask.quantity < instance.quantity:
-                part.available = part.available - \
-                    (instance.quantity - partbytask.quantity)
+
+            # Changing the part on the update
+            if partbytask.part != instance.part:
+                old_part = Part.objects.get(id=partbytask.part.id)
+                old_part.available = old_part.available + partbytask.quantity
+                old_part.save()
+                part.available = part.available - instance.quantity
+
+            else:
+                # Updating only quantity
+                part.available = calculate_available(
+                    partbytask.quantity, instance.quantity, part.available)
 
         part.save()
-        print(part.available)
     else:
         instance.subtotal = 0.00
 
 
 pre_save.connect(pre_save_partsbytask_receiver, sender=PartsByTask)
+
+
+def calculate_available(old_quantity, new_quantity, available):
+    if old_quantity > new_quantity:
+        available = available + \
+            (old_quantity - new_quantity)
+    elif old_quantity < new_quantity:
+        available = available - \
+            (new_quantity - old_quantity)
+    return available
 
 
 # update totals in task after delete part and part.available
