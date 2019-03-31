@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for truck in trucks %}
+<option value="{{ truck.pk }}">{{ truck.fleet }}</option>
+{% endfor %}

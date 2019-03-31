@@ -3,12 +3,12 @@ from django.conf.urls import url
 from .views import (
     MainView, TimeCardView, clock_in,
     clock_out, start_or_end_task,
-    WorkOrderdetailView, WorkOrderCreateView,
-    task_time_labor_update_api
+    WorkOrderUpdateView, WorkOrderCreateView,
+    task_time_labor_update_api, load_trucks
 )
 
 from task_orders.views import (
-    TaskUpdateView, AddPartsCreateView,
+    TaskUpdateView, TaskDeleteView, AddPartsCreateView,
     PartUpdateView, PartDeleteView,
 )
 
@@ -16,15 +16,18 @@ app_name = 'work_orders'
 
 urlpatterns = [
     url(r'^$', MainView.as_view(), name='index'),
+    url(r'^ajax/load/trucks/$', load_trucks, name='ajax_load_trucks'),
     url(r'^create/$', WorkOrderCreateView.as_view(), name='create'),
     url(r'^clockin/$', clock_in, name='clockin'),
     url(r'^clockout/$', clock_out, name='clockout'),
     url(r'^start/$', start_or_end_task, name='start_or_end'),
     url(r'^timecard/$', TimeCardView.as_view(), name='time_card'),
     url(r'^order/(?P<slug>[\w-]+)/$',
-        WorkOrderdetailView.as_view(), name='detail'),
+        WorkOrderUpdateView.as_view(), name='detail'),
     url(r'^task/(?P<pk>\d+)/$',
         TaskUpdateView.as_view(), name='update_task'),
+    url(r'^task/delete/(?P<pk>\d+)/$',
+        TaskDeleteView.as_view(), name='delete_task'),
     # url(r'^task/save/(?P<pk>\d+)/$',
     #     TaskUpdateView.as_view(), name='update_task'),
     url(r'^update/timelabor/$',

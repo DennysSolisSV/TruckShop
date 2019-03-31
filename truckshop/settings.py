@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'accounts',
     'inventory',
+    'payments',
     'truck',
     'timecard',
     'search',

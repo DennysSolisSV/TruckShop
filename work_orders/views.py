@@ -1,9 +1,11 @@
 from datetime import date
+from decimal import Decimal
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.generic import (
-    DetailView, TemplateView,
+    UpdateView, TemplateView,
 )
 
 
@@ -12,6 +14,7 @@ from .forms import WorkOrderForm
 from .models import MechachicTimeTask, Task, WorkOrder
 from timecard.models import TimeDay
 from truckshop.utils import unique_work_order_number_generator
+from truck.models import Truck
 
 
 today = date.today()
@@ -83,27 +86,51 @@ class WorkOrderCreateView(TemplateView):
         return render(request, self.template_name, context)
 
 
-class WorkOrderdetailView(DetailView):
+class WorkOrderUpdateView(UpdateView):
     template_name = 'work_orders/work_order_form.html'
+    model = WorkOrder
+    form_class = WorkOrderForm
 
-    def get(self, request, slug, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        slug = self.kwargs.get('slug')
         work_order = WorkOrder.objects.get(slug=slug)
         tasks = Task.objects.filter(work_order=work_order).order_by("id")
-        data = {
-            "number_order": work_order.number_order,
-            "client": work_order.client,
-            "truck": work_order.truck,
-        }
 
-        request.session['work_order_id'] = work_order.id
-        request.session['work_order_slug'] = work_order.slug
-
-        work_form = WorkOrderForm(initial=data)
         context = {
-            "work_form": work_form,
             "tasks": tasks,
         }
-        return render(request, self.template_name, context)
+        self.request.session['work_order_id'] = work_order.id
+        self.request.session['work_order_slug'] = work_order.slug
+
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+    def get_success_url(self, **kwargs):
+        url = reverse("work_orders:index")
+        return url
+
+
+# class WorkOrderdetailView(DetailView):
+#     template_name = 'work_orders/work_order_form.html'
+
+#     def get(self, request, slug, *args, **kwargs):
+#         work_order = WorkOrder.objects.get(slug=slug)
+#         tasks = Task.objects.filter(work_order=work_order).order_by("id")
+#         data = {
+#             "number_order": work_order.number_order,
+#             "client": work_order.client,
+#             "truck": work_order.truck,
+#         }
+
+#         request.session['work_order_id'] = work_order.id
+#         request.session['work_order_slug'] = work_order.slug
+
+#         work_form = WorkOrderForm(initial=data)
+#         context = {
+#             "work_form": work_form,
+#             "tasks": tasks,
+#         }
+#         return render(request, self.template_name, context)
 
 
 def clock_in(request):
@@ -142,15 +169,34 @@ def check_group(user, name_group):
 def task_time_labor_update_api(request):
     time_labor = request.POST.get("time_labor")
     task_pk = request.POST.get("task_pk")
+    print(task_pk)
     if not time_labor.isalpha():
-        qs = Task.objects.get(pk=task_pk)
-        qs.time_labor = time_labor
-        qs.save()
+        if task_pk != '0':
+            qs = Task.objects.get(pk=task_pk)
+            qs.time_labor = time_labor
+            qs.save()
 
-    task_data = {
-        "total_parts": qs.total_parts,
-        "total_labor": qs.total_labor,
-        "total_task": qs.total_task
-    }
+            task_data = {
+                "total_parts": qs.total_parts,
+                "total_labor": qs.total_labor,
+                "total_task": qs.total_task
+            }
+        else:
+            total_labor = Decimal(time_labor) * 125
+            task_data = {
+                "total_parts": '0',
+                "total_labor": total_labor,
+                "total_task": total_labor
+            }
 
     return JsonResponse(task_data)
+
+
+def load_trucks(request):
+    client_id = request.GET.get('client')
+    trucks = Truck.objects.filter(
+        client_id=client_id).order_by('fleet')
+    print(trucks)
+    return render(request, 'snippets/truck_dropdown_list_options.html', {
+        'trucks': trucks
+    })

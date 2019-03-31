@@ -4,36 +4,66 @@
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-6 mx-auto py-5 text-center">
-				<h1> Work Order: {{ work_form.number_order.value }} </h1>
+				<h1> Work Order: {{ form.number_order.value }} </h1>
+
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-12">
-			<form>
+			<form method="POST"  id="workorderForm" class="work_order_form" data-trucks-url="{% url 'work_orders:ajax_load_trucks' %}">
+				{% csrf_token %}
+				{{ form.number_order.as_hidden }}
 			  <div class="form-row">
-			  	<div class="card  col-md-6">
+			  	<div class="card  col-md-3">
 				  <div class="card-header">
 				    Customer Information
 				  </div>
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputCliente">Name:</label>
-				      {{ work_form.client }}
+				      {{ form.client }}
 				    </div>
 				  </div>
 			  	</div>
 
-			  	<div class="card  col-md-6">
+			  	<div class="card  col-md-3">
 				  <div class="card-header">
 				    Vehicle Information
 				  </div>
 				  <div class="card-body">
 				    <div class="form-group">
 				      <label for="inputCliente">Truck:</label>
-				      {{ work_form.truck }}
+				      {{ form.truck }}
 				    </div>
 				  </div>
 			  	</div>
+
+			  	<div class="card  col-md-6">
+				  <div class="card-header">
+				    Totals
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputMechanic">Total parts:</label>
+				      <span class="Totalparts">{{ form.total_parts }}</span>
+				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Total labor:</label>
+				      <span class="Totallabor">{{ form.total_labor }}</span>				      
+				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Total work order:</label>
+				      {{ form.total_work_order }}
+				    </div>
+				    <div class="form-group">				    	
+				      <button type="submit" class="btn btn-primary float-right" name="save">Save</button>
+				      <a href="{% url 'work_orders:index' %}" class="btn btn-danger float-right">Cancel</a>
+				      
+				    </div>
+				  </div>
+			  	</div>
+
+
 			  </div>
 			</form>
 			<form action="{% url 'work_orders:start_or_end' %}">
@@ -51,6 +81,8 @@
 							      <th scope="col">Task</th>
 							      <th scope="col">Mechanic</th>
 							      <th scope="col">Total Hours</th>
+							      <th scope="col">Total ($)</th>
+							      <th scope="col">Status</th>
 							      <th scope="col">Actions</th>
 							    </tr>
 							  </thead>
@@ -60,8 +92,13 @@
 							      <th scope="row">{{ forloop.counter }}</th>
 							      <td><a href="{{task.get_absolute_url}}" data-toggle="popover" title="{{ task.title }}" data-content="{{task.description}}">{{ task.title }}</a></td>
 							      <td>{{ task.mechanic }}</td>
-							      <td>( {{task.time_labor}} )</td>
-							      <td><a href="{{ task.get_absolute_url }}" title=""><i class="fas fa-edit"></i></a>&nbsp&nbsp<a href="" title=""><i class="fas fa-trash-alt"></i></a></td>							      
+							      <td>( {{ task.time_labor }} )</td>
+							      <td>( {{ task.total_task }} )</td>
+							      <td> {{ task.get_status_display }} </td>
+							      <td>
+							      	<a href="{{ task.get_absolute_url }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+							      	<button type="button" class="delete-task btn btn-sm btn-danger" data-id="{% url 'work_orders:delete_task' task.id %}"><i class="fas fa-trash-alt"></i>
+							      	</button>							      
 							    </tr>							    
 							    {% endfor %}
 							  </tbody>
@@ -76,6 +113,49 @@
 			   
 		</div>
 	</div>
+</div>	
+
+<!-- Modal adding , Deleting task  -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+    	<div class="modal-content"></div>
+  	</div>
 </div>			  
+
+{% endblock %}
+
+
+
+{% block js %}
+<script>
+	
+	$(function () {
+	    
+	    // Delete task button
+	    $(".delete-task").each(function () {
+	      $(this).modalForm({formURL: $(this).data('id')});
+	    });
+
+	});
+</script>		 
+
+<script>
+    $("#id_client").change(function () {
+      var url = $("#workorderForm").attr("data-trucks-url");  // get the url of the `load_trucks` view
+      var clientId = $(this).val();  // get the selected client ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request ties/)
+        data: {
+          'client': clientId       // add the client id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_trucks` view function
+          $("#id_truck").html(data);  // replace the contents of the truck input with the data that came from the server
+        }
+      });
+
+    });
+  </script>
+
 
 {% endblock %}

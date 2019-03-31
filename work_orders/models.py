@@ -12,6 +12,20 @@ from inventory.models import Part
 from truck.models import Truck
 from truckshop.utils import unique_work_order_number_generator
 
+WORK_ORDER_STATUS = (
+    ('quotes', 'Quotes'),
+    ('dropped_off', 'Dropped Off'),
+    ('in_process', 'In Process'),
+    ('closed', 'Closed Work Order'),
+    ('paid', 'Paid Work Order'),
+)
+
+TASK_STATUS = (
+    ('no_assigned', 'No assigned'),
+    ('in_process', 'In Process'),
+    ('completed', 'Completed'),
+)
+
 User = settings.AUTH_USER_MODEL
 
 
@@ -53,10 +67,20 @@ class TaskManager(models.Manager):
 
 class WorkOrder(models.Model):
     number_order = models.PositiveIntegerField(null=True, blank=True)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now_add=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
     slug = models.CharField(max_length=30, null=True, blank=True)
+    total_parts = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
+    total_labor = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
+    total_work_order = models.DecimalField(
+        default=0.00, max_digits=100, decimal_places=2)
+    status = models.CharField(
+        max_length=150,
+        choices=WORK_ORDER_STATUS,
+        default='quotes')
 
     objects = WorkOrderManager()
 
@@ -68,6 +92,7 @@ class WorkOrder(models.Model):
 
 
 def workorder_pre_save_receiver(sender, instance, *args, **kwargs):
+
     if not instance.number_order:
         instance.number_order = unique_work_order_number_generator(
             instance)
@@ -81,8 +106,7 @@ class Task(models.Model):
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     description = models.TextField()
-    time_labor = models.DecimalField(
-        default=0.00, max_digits=100, decimal_places=2)
+    time_labor = models.DecimalField(max_digits=100, decimal_places=2)
     mechanic = models.ForeignKey(User, on_delete=models.CASCADE)
     total_parts = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
@@ -91,22 +115,43 @@ class Task(models.Model):
     total_task = models.DecimalField(
         default=0.00, max_digits=100, decimal_places=2)
 
+    status = models.CharField(
+        max_length=150,
+        choices=TASK_STATUS,
+        default='no_assigned')
+
     objects = TaskManager()
 
     def __str__(self):
-        return self.title + " - " + str(self.work_order.number_order)
+        return self.title
 
     def get_absolute_url(self):
         return reverse("work_orders:update_task", kwargs={"pk": self.pk})
 
 
 def pre_save_task_receiver(sender, instance, *args, **kwargs):
+    work_order = WorkOrder.objects.get(id=instance.work_order.id)
     instance.total_parts = get_sum_total_parts_in_task(instance)
     instance.total_labor = Decimal(instance.time_labor) * Decimal(115.00)
     instance.total_task = instance.total_parts + instance.total_labor
+    work_order.total_parts, work_order.total_labor, \
+        work_order.total_work_order = get_sum_totals_task_in_work_order(
+            work_order)
+    work_order.save()
 
 
 pre_save.connect(pre_save_task_receiver, sender=Task)
+
+
+def post_delete_task_receiver(sender, instance, *args, **kwargs):
+    work_order = WorkOrder.objects.get(id=instance.work_order.id)
+    work_order.total_parts, work_order.total_labor, \
+        work_order.total_work_order = get_sum_totals_task_in_work_order(
+            work_order)
+    work_order.save()
+
+
+post_delete.connect(post_delete_task_receiver, sender=Task)
 
 
 class PartsByTask(models.Model):
@@ -182,7 +227,6 @@ def post_delete_partsbytask_receiver(sender, instance, *args, **kwargs):
 
     part.available = part.available + instance.quantity
     part.save()
-    print(part.available)
 
 
 post_delete.connect(post_delete_partsbytask_receiver, sender=PartsByTask)
@@ -215,3 +259,18 @@ def get_sum_total_parts_in_task(instance):
         return out["subtotal__sum"]
     else:
         return Decimal(0)
+
+
+def get_sum_totals_task_in_work_order(work_order):
+    tasks = Task.objects.filter(work_order=work_order)
+    if tasks:
+        out = tasks.aggregate(Sum('total_parts'))
+        out1 = tasks.aggregate(Sum('total_labor'))
+        out2 = tasks.aggregate(Sum('total_task'))
+
+        return (out['total_parts__sum'],
+                out1['total_labor__sum'],
+                out2['total_task__sum']
+                )
+    else:
+        return 0, 0, 0

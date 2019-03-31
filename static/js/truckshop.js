@@ -95,7 +95,8 @@ $(document).ready(function(){
             total_taskSpan.val(data.total_task)
           },
           error: function(errorData){
-             alert("Should be number");
+             //alert("Should be number");
+             alert(errorData);
           }
       }); // end ajax
   }

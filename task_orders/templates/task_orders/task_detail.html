@@ -44,6 +44,10 @@
 				      <label for="inputTime">Time labor:</label>
 				      {{ form.time_labor }}
 				    </div>
+				    <div class="form-group">
+				      <label for="inputTime">Status:</label>
+				      {{ form.status }}
+				    </div>
 				  </div>
 			  	</div>
 			  	<div class="card  col-md-3">
@@ -65,7 +69,8 @@
 				    </div>
 				    <div class="form-group">				    	
 				      <button type="submit" class="btn btn-primary float-right" name="save">Save</button>
-				      <button type="submit" class="btn btn-danger float-right" name="cancel">Cancel</button>
+				      <a href="{% url 'work_orders:detail' request.session.work_order_slug %}" class="btn btn-danger float-right">Cancel</a>
+				      
 				    </div>
 				  </div>
 			  	</div>
@@ -76,7 +81,11 @@
 			  	<div class="col-md-12 ">
 			  		<div class="card">
 					  <div class="card-header">
-					    Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part" data-id="{% url 'work_orders:add_part' task_pk %}"> New part <i class="fas fa-plus-square"></i></button>
+					  	{% if task_pk == 0 %}
+					  		Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part" disabled> New part <i class="fas fa-plus-square"></i></button>
+					  	{% else %}
+					    	Parts <button type="button" class="btn btn-primary btn-sm float-right js-add-part" data-id="{% url 'work_orders:add_part' task_pk %}"> New part <i class="fas fa-plus-square"></i></button>
+					    {% endif %}
 					  </div>
 					  	<div class="card-body">
 				          	<table class="table">

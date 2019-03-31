@@ -38,17 +38,15 @@ class TaskCreateView(CreateView):
 
         context = {
             "parts": parts,
-            "task_pk": 1,
+            "task_pk": 0,
         }
 
         context.update(kwargs)
         return super().get_context_data(**context)
 
     def get_success_url(self, **kwargs):
-        work_order = WorkOrder.objects.get(
-            id=self.request.session.get("work_order_id", None))
-        urls = reverse("work_orders:detail", kwargs={
-            "slug": work_order.slug})
+        urls = reverse("work_orders:update_task", kwargs={
+            "pk": self.object.id})
         return urls
 
 
@@ -56,13 +54,6 @@ class TaskUpdateView(UpdateView):
     template_name = 'task_orders/task_detail.html'
     queryset = Task.objects.all()
     form_class = TaskForm
-
-    def post(self, request, *args, **kwargs):
-        if "cancel" in request.POST:
-            url = self.get_success_url()
-            return HttpResponseRedirect(url)
-        else:
-            return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         task = self.kwargs.get('pk')
@@ -85,13 +76,23 @@ class TaskUpdateView(UpdateView):
 
 class TaskDeleteView(DeleteAjaxMixin, DeleteView):
     model = Task
-    template_name = 'task_orders/delete_task_form.html'
+    template_name = 'delete_form.html'
     success_message = 'Success: Task was deleted.'
 
     def get_success_url(self, **kwargs):
-        pk = self.kwargs.get('id')
-        url = reverse("work_orders:update_task", kwargs={"pk": pk})
+        task = Task.objects.get(id=self.kwargs.get('pk'))
+        url = reverse("work_orders:detail", kwargs={
+                      "slug": task.work_order.slug})
         return url
+
+    def get_context_data(self, **kwargs):
+        # Modal title
+        context = {
+            "message": "Are you sure you want to delete this task",
+            "title": "Delete task"
+        }
+        context.update(kwargs)
+        return super(TaskDeleteView, self).get_context_data(**context)
 
 
 class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
@@ -177,10 +178,19 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
 
 class PartDeleteView(DeleteAjaxMixin, DeleteView):
     model = PartsByTask
-    template_name = 'task_orders/delete_part_form.html'
+    template_name = 'delete_form.html'
     success_message = 'Success: Part was deleted.'
 
     def get_success_url(self, **kwargs):
         pk = self.kwargs.get('id')
         url = reverse("work_orders:update_task", kwargs={"pk": pk})
         return url
+
+    def get_context_data(self, **kwargs):
+        # Modal title
+        context = {
+            "message": "Are you sure you want to delete this part",
+            "title": "Delete part"
+        }
+        context.update(kwargs)
+        return super(PartDeleteView, self).get_context_data(**context)
