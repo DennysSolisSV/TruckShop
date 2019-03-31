@@ -38,7 +38,19 @@
 				  </div>
 			  	</div>
 
-			  	<div class="card  col-md-6">
+			  	<div class="card  col-md-3">
+				  <div class="card-header">
+				    Status
+				  </div>
+				  <div class="card-body">
+				    <div class="form-group">
+				      <label for="inputStatus">Status:</label>
+				      {{ form.status }}
+				    </div>
+				  </div>
+			  	</div>
+
+			  	<div class="card  col-md-3">
 				  <div class="card-header">
 				    Totals
 				  </div>
@@ -71,7 +83,11 @@
 			  	<div class="col-md-12 ">
 			  		<div class="card">
 					  <div class="card-header">
-					    Work Order Tasks <a href="{% url 'task_orders:create' %}" title=""><button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button></a>
+					  	{% if work_order_pk == 0 %}
+					    	Work Order Tasks <button type="button" class="btn btn-primary btn-sm float-right" disabled> New task <i class="fas fa-plus-square"></i></button>
+					    {% else %}
+					    	Work Order Tasks <a href="{% url 'task_orders:create' %}" title=""><button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button></a>
+					    {% endif %}
 					  </div>
 					  	<div class="card-body">
 				          	<table class="table">

@@ -13,7 +13,7 @@ from truck.models import Truck
 from truckshop.utils import unique_work_order_number_generator
 
 WORK_ORDER_STATUS = (
-    ('quotes', 'Quotes'),
+    ('quote', 'Quote'),
     ('dropped_off', 'Dropped Off'),
     ('in_process', 'In Process'),
     ('closed', 'Closed Work Order'),

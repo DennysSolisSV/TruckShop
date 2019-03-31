@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import (
-    UpdateView, TemplateView,
+    CreateView, UpdateView, TemplateView,
 )
 
 
@@ -71,19 +71,24 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
 # Creating a work order
 
 
-class WorkOrderCreateView(TemplateView):
+class WorkOrderCreateView(CreateView):
     template_name = 'work_orders/work_order_form.html'
+    model = WorkOrder
+    form_class = WorkOrderForm
 
-    def get(self, request, *args, **kwargs):
-        # creating a instance to pass it to the function
-        work_order = WorkOrder.objects.first()
-        new_work_order = unique_work_order_number_generator(work_order)
-        data = {"number_order": new_work_order}
-        work_form = WorkOrderForm(initial=data)
+    def get_context_data(self, **kwargs):
+
         context = {
-            "work_form": work_form,
+            "work_order_pk": 0,
         }
-        return render(request, self.template_name, context)
+
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+    def get_success_url(self, **kwargs):
+        urls = reverse("work_orders:detail", kwargs={
+            "slug": self.object.slug})
+        return urls
 
 
 class WorkOrderUpdateView(UpdateView):

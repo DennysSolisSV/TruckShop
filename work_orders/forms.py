@@ -13,7 +13,8 @@ class WorkOrderForm(ModelForm):
             'truck',
             'total_parts',
             'total_labor',
-            'total_work_order'
+            'total_work_order',
+            "status",
         ]
         widgets = {
             "number_order": TextInput(attrs={
@@ -21,6 +22,7 @@ class WorkOrderForm(ModelForm):
             }),
             "client": Select(attrs={"class": "form-control"}),
             "truck": Select(attrs={"class": "form-control"}),
+            "status": Select(attrs={"class": "form-control"}),
             "total_parts": TextInput(attrs={"class": "form-control"}),
             "total_labor": TextInput(attrs={"class": "form-control"}),
             "total_work_order": TextInput(attrs={"class": "form-control"}),

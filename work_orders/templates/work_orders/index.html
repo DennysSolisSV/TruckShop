@@ -29,7 +29,7 @@
 		      <td>{{ item.date }}</td>
 		      <td>{{ item.client }}</td>
 		      <td>{{ item.truck }}</td>
-		      <td>in process</td>
+		      <td>{{ item.get_status_display }}</td>
 		    </tr>
 		  	{% endfor %}
 		  </tbody>
