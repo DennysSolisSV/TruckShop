@@ -1,64 +1,73 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Main{% endblock title %}
+{% block css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.dataTables.min.css" />
+{% endblock %}
 {% block content %}
-<div class="container-fluid">
+		
+<!-- Page Header -->
+<div class="page-header row no-gutters py-4">
+  <div class="col-12 col-sm-4 text-center text-sm-left mb-4 mb-sm-0">
+    <span class="text-uppercase page-subtitle">Dashboard</span>
+    <h3 class="page-title">Transaction History</h3>
+  </div>
+</div>
+<!-- End Page Header -->
+<!-- Transaction History Table -->
+<table class="transaction-history d-none">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Created</th>
+      <th>Customer</th>
+      <th>Truck</th>
+      <th>Status</th>
+      <th>Total</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in object_list %}
+    <tr>
+      <td><a href="{{ item.get_absolute_url }}" title="work_order">{{ item.number_order }}</a></td>
+      <td>{{ item.date }}</span>
+      </td>
+      <td>{{ item.client }}</td>
+      <td>{{ item.truck }}</td>
+      <td>
+        <span class="text-warning">{{ item.status }}</span>
+      </td>
+      <td>
+        <span class="text-success">${{ item.total_work_order }}</span>
+      </td>
+      <td>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Table row actions">
+          <button type="button" class="btn btn-white">
+            <i class="material-icons">&#xE870;</i>
+          </button>
+          <a href="{{ item.get_absolute_url }}" class="btn btn-white"><i class="material-icons">&#xE254;</i></a>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- End Transaction History Table -->
+
+
+
+<!-- <div class="container-fluid">
 	<div class="row">
 		<div class="col-12 col-md-6 mx-auto py-5">
 				{% include 'search/snippets/search.html' %}
 		</div>
 	</div>
-	<div class="row justify-content-center">
-      <div class="col-10 col-md-10 mx-auto py-5">
-        <table class="table table-striped">
-		  <thead>
-		    <tr>
-		      <th scope="col"># Work Order</th>
-		      <th scope="col">Created</th>
-		      <th scope="col">Client</th>
-		      <th scope="col">Truck</th>
-		      <th scope="col">Status</th>
-		    </tr>
-		  </thead>
-		  <tbody>
-		  	{% for item in object_list %}
-		  	<tr>
-		      <th scope="row">
-		      	<a href="{{ item.get_absolute_url }}" title="work_order">{{ item.number_order }}</a>
-		      </th>
-		      <td>{{ item.date }}</td>
-		      <td>{{ item.client }}</td>
-		      <td>{{ item.truck }}</td>
-		      <td>{{ item.get_status_display }}</td>
-		    </tr>
-		  	{% endfor %}
-		  </tbody>
-		</table>
-      </div>
-    </div>
-
-    {% if is_paginated %}
-	  <ul class="pagination">
-	    {% if page_obj.has_previous %}
-	      <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-	    {% else %}
-	      <li class="disabled"><span>&laquo;</span></li>
-	    {% endif %}
-	    {% for i in paginator.page_range %}
-	      {% if page_obj.number == i %}
-	        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-	      {% else %}
-	        <li><a href="?page={{ i }}">{{ i }}</a></li>
-	      {% endif %}
-	    {% endfor %}
-	    {% if page_obj.has_next %}
-	      <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-	    {% else %}
-	      <li class="disabled"><span>&raquo;</span></li>
-	    {% endif %}
-	  </ul>
-	{% endif %}
-
-
-</div>
+</div> -->
 {% endblock content %}
+{% block js %}
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="{% static 'js/app/app-transaction-history.1.3.1.js' %}"></script>
+{% endblock %}

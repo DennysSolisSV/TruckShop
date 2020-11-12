@@ -69,9 +69,7 @@ class TimeCardView(LoginRequiredMixin, TemplateView):
         return context
 
 # Creating a work order
-
-
-class WorkOrderCreateView(CreateView):
+class WorkOrderCreateView(LoginRequiredMixin, CreateView):
     template_name = 'work_orders/work_order_form.html'
     model = WorkOrder
     form_class = WorkOrderForm
@@ -91,7 +89,7 @@ class WorkOrderCreateView(CreateView):
         return urls
 
 
-class WorkOrderUpdateView(UpdateView):
+class WorkOrderUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'work_orders/work_order_form.html'
     model = WorkOrder
     form_class = WorkOrderForm
@@ -100,43 +98,18 @@ class WorkOrderUpdateView(UpdateView):
         slug = self.kwargs.get('slug')
         work_order = WorkOrder.objects.get(slug=slug)
         tasks = Task.objects.filter(work_order=work_order).order_by("id")
-
+        
         context = {
             "tasks": tasks,
         }
         self.request.session['work_order_id'] = work_order.id
         self.request.session['work_order_slug'] = work_order.slug
-
         context.update(kwargs)
         return super().get_context_data(**context)
 
     def get_success_url(self, **kwargs):
         url = reverse("work_orders:index")
         return url
-
-
-# class WorkOrderdetailView(DetailView):
-#     template_name = 'work_orders/work_order_form.html'
-
-#     def get(self, request, slug, *args, **kwargs):
-#         work_order = WorkOrder.objects.get(slug=slug)
-#         tasks = Task.objects.filter(work_order=work_order).order_by("id")
-#         data = {
-#             "number_order": work_order.number_order,
-#             "client": work_order.client,
-#             "truck": work_order.truck,
-#         }
-
-#         request.session['work_order_id'] = work_order.id
-#         request.session['work_order_slug'] = work_order.slug
-
-#         work_form = WorkOrderForm(initial=data)
-#         context = {
-#             "work_form": work_form,
-#             "tasks": tasks,
-#         }
-#         return render(request, self.template_name, context)
-
 
 def clock_in(request):
     TimeDay.objects.create(user=request.user, clock_in=True)

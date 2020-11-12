@@ -1,142 +1,185 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-	<div class="row justify-content-center">
-		<div class="col-12 col-md-6 mx-auto py-5 text-center">
-				<h1> Work Order: {{ form.number_order.value }} </h1>
-
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-12">
-			<form method="POST"  id="workorderForm" class="work_order_form" data-trucks-url="{% url 'work_orders:ajax_load_trucks' %}">
-				{% csrf_token %}
-				{{ form.number_order.as_hidden }}
-			  <div class="form-row">
-			  	<div class="card  col-md-3">
-				  <div class="card-header">
-				    Customer Information
-				  </div>
-				  <div class="card-body">
-				    <div class="form-group">
-				      <label for="inputCliente">Name:</label>
-				      {{ form.client }}
-				    </div>
-				  </div>
-			  	</div>
-
-			  	<div class="card  col-md-3">
-				  <div class="card-header">
-				    Vehicle Information
-				  </div>
-				  <div class="card-body">
-				    <div class="form-group">
-				      <label for="inputCliente">Truck:</label>
-				      {{ form.truck }}
-				    </div>
-				  </div>
-			  	</div>
-
-			  	<div class="card  col-md-3">
-				  <div class="card-header">
-				    Status
-				  </div>
-				  <div class="card-body">
-				    <div class="form-group">
-				      <label for="inputStatus">Status:</label>
-				      {{ form.status }}
-				    </div>
-				  </div>
-			  	</div>
-
-			  	<div class="card  col-md-3">
-				  <div class="card-header">
-				    Totals
-				  </div>
-				  <div class="card-body">
-				    <div class="form-group">
-				      <label for="inputMechanic">Total parts:</label>
-				      <span class="Totalparts">{{ form.total_parts }}</span>
-				    </div>
-				    <div class="form-group">
-				      <label for="inputTime">Total labor:</label>
-				      <span class="Totallabor">{{ form.total_labor }}</span>				      
-				    </div>
-				    <div class="form-group">
-				      <label for="inputTime">Total work order:</label>
-				      {{ form.total_work_order }}
-				    </div>
-				    <div class="form-group">				    	
-				      <button type="submit" class="btn btn-primary float-right" name="save">Save</button>
-				      <a href="{% url 'work_orders:index' %}" class="btn btn-danger float-right">Cancel</a>
-				      
-				    </div>
-				  </div>
-			  	</div>
+{% if object %}
+  {% firstof 'Edit Work Order' as title %}
+{% else %}
+  {% firstof 'New Work Order' as title %}
+{% endif %}
+<!-- Page Header -->
+<div class="page-header row no-gutters py-4">
+  <div class="col-12 col-sm-4 text-center text-sm-left mb-4 mb-sm-0">
+    <span class="text-uppercase page-subtitle">Work Orders</span>
+    <h3 class="page-title">{{ title }}</h3>
+  </div>
+</div>
+<!-- End Page Header -->
 
 
-			  </div>
-			</form>
-			<form action="{% url 'work_orders:start_or_end' %}">
-			  <div class="row mx-auto py-5">	
-			  	<div class="col-md-12 ">
-			  		<div class="card">
-					  <div class="card-header">
-					  	{% if work_order_pk == 0 %}
-					    	Work Order Tasks <button type="button" class="btn btn-primary btn-sm float-right" disabled> New task <i class="fas fa-plus-square"></i></button>
+<div class="col col-lg-12 col-md-12 col-sm-12 mb-4">
+  <div class="card card-small h-100">
+    <div class="card-header border-bottom">
+      <h6 class="m-0">Work order: 
+          <span class="badge badge-primary">
+              {{ form.number_order.value }}
+          </span>
+      </h6>
+      <div class="block-handle"></div>
+    </div>
+    <div class="card-body pt-0">
+      <form method="POST"  id="workorderForm" class="work_order_form" data-trucks-url="{% url 'work_orders:ajax_load_trucks' %}">
+          {% csrf_token %}
+          {{ form.number_order.as_hidden }}
+          <div class="row border-bottom py-2 bg-light">
+              <div class="col-12 col-sm-6 d-flex mb-2 mb-sm-0">
+                <div class="btn-group btn-group-sm btn-group-toggle d-flex my-auto mx-auto mx-sm-0" data-toggle="buttons">
+                </div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <div id="sessions-overview-date-range" class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0" style="max-width: 150px;">
+                    <button type="submit" class="btn btn-primary btn-sm float-right" name="save">Save</button>
+                    <a href="{% url 'work_orders:index' %}" class="btn btn-danger btn-sm float-right">Cancel</a>
+                </div>
+              </div>
+            </div>
+            <div id="analytics-overview-sessions-legend"></div>
+          <!-- Form structure -->
+          <div class="row">
+              <!-- start left -->
+              <div class="col-6 py-4">
+                  <!-- left header -->
+                  <div class="form-group row">
+                      <label for="client" class="col-sm-2 col-form-label">Customer:</label>
+                      <div class="col-sm-10">
+                          {{ form.client }}
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="truck" class="col-sm-2 col-form-label">Vehicle:</label>
+                      <div class="col-sm-10">
+                          {{ form.truck }}
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="status" class="col-sm-2 col-form-label">Status:</label>
+                      <div class="col-sm-10">
+                          {{ form.status }}
+                      </div>
+                  </div>
+                  <!-- end header -->
+              </div>
+              <!-- end left -->
+              <!-- start right -->
+              <div class="col-1"></div>
+              <div class="col-5 py-4">
+                  <div class="form-group row">
+                      <label for="id_total_parts" class="col-sm-6 col-form-label">Total parts:</label>
+                      <div class="col-sm-4">
+                        {{ form.total_parts }}
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="id_total_labor" class="col-sm-6 col-form-label">Total labor:</label>
+                      <div class="col-sm-4">
+                          {{ form.total_labor }}
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="id_total_work_order" class="col-sm-6 col-form-label">Total work order:</label>
+                      <div class="col-sm-4">
+                          {{ form.total_work_order }}
+                      </div>
+                  </div>
+              </div>
+              <!-- end right -->
+          </div>
+          <!-- start detail -->
+      </form>
+      <div class="row border-bottom py-2 bg-light">
+          <div class="col-12 col-sm-6 d-flex mb-2 mb-sm-0">
+            <div class="btn-group btn-group-sm btn-group-toggle d-flex my-auto mx-auto mx-sm-0" data-toggle="buttons">
+                <h6 class="m-0">Tasks Detail:</h6>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div id="sessions-overview-date-range" class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0" style="max-width: 150px;">
+              {% if work_order_pk == 0 %}
+					    	<button type="button" class="btn btn-primary btn-sm float-right" disabled> New task <i class="fas fa-plus-square"></i></button>
 					    {% else %}
-					    	Work Order Tasks <a href="{% url 'task_orders:create' %}" title=""><button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button></a>
+					    	<a href="{% url 'task_orders:create' %}" title=""><button type="button" class="btn btn-primary btn-sm float-right"> New task <i class="fas fa-plus-square"></i></button></a>
 					    {% endif %}
-					  </div>
-					  	<div class="card-body">
-				          	<table class="table">
-							  <thead>
-							  	<tr>
-							      <th scope="col">#</th>
-							      <th scope="col">Task</th>
-							      <th scope="col">Mechanic</th>
-							      <th scope="col">Total Hours</th>
-							      <th scope="col">Total ($)</th>
-							      <th scope="col">Status</th>
-							      <th scope="col">Actions</th>
-							    </tr>
-							  </thead>
-							  <tbody>
-							  	{% for task in tasks %}
-							    <tr>
-							      <th scope="row">{{ forloop.counter }}</th>
-							      <td><a href="{{task.get_absolute_url}}" data-toggle="popover" title="{{ task.title }}" data-content="{{task.description}}">{{ task.title }}</a></td>
-							      <td>{{ task.mechanic }}</td>
-							      <td>( {{ task.time_labor }} )</td>
-							      <td>( {{ task.total_task }} )</td>
-							      <td> {{ task.get_status_display }} </td>
-							      <td>
-							      	<a href="{{ task.get_absolute_url }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-							      	<button type="button" class="delete-task btn btn-sm btn-danger" data-id="{% url 'work_orders:delete_task' task.id %}"><i class="fas fa-trash-alt"></i>
-							      	</button>							      
-							    </tr>							    
-							    {% endfor %}
-							  </tbody>
-							</table>
-				    	</div>	
-			  		</div>
-			  	</div>			    
-				
-			  </div>
-			          
-			</form>     
-			   
-		</div>
-	</div>
-</div>	
+            </div>
+          </div>
+      </div>
+      <form action="{% url 'work_orders:start_or_end' %}">
+          <div class="row">
+              <div class="col">
+                  <table class="table table-striped table-hover dt-responsive nowrap" style="width:100%">
+                      <thead>
+                          <th>#</th>
+                          <th>Task</th>
+                          <th>Mechanic</th>
+                          <th>Total Hours</th>
+                          <th>Total ($)</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                      </thead>
+                      <tbody>
+                          {% for task in tasks %}
+                          <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td><a href="{{task.get_absolute_url}}" data-toggle="popover" title="{{ task.title }}" data-content="{{task.description}}">{{ task.title }}</a></td>
+                            <td>{{ task.mechanic }}</td>
+                            <td>( {{ task.time_labor }} )</td>
+                            <td>( {{ task.total_task }} )</td>
+                            <td> {{ task.get_status_display }} </td>
+                            <td>
+                              <a href="{{ task.get_absolute_url }}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                              <button type="button" class="delete-task btn btn-sm btn-danger" data-id="{% url 'work_orders:delete_task' task.id %}"><i class="fas fa-trash-alt"></i>
+                              </button>							      
+                          </tr>							    
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <!-- Fin Detalle -->
+      </form>
+    </div>
+  </div>
+</div>
 
-<!-- Modal adding , Deleting task  -->
-<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+<!-- Modal deleting task  -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modaldelete">
 	<div class="modal-dialog modal-dialog-centered" role="document">
     	<div class="modal-content"></div>
   	</div>
-</div>			  
+</div>	
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+    Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
@@ -144,14 +187,11 @@
 
 {% block js %}
 <script>
-	
 	$(function () {
-	    
 	    // Delete task button
 	    $(".delete-task").each(function () {
 	      $(this).modalForm({formURL: $(this).data('id')});
 	    });
-
 	});
 </script>		 
 

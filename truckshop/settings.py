@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-LOGOUT_REDIRECT_URL = "/"
+
 ROOT_URLCONF = 'truckshop.urls'
 
 TEMPLATES = [
@@ -89,12 +89,12 @@ WSGI_APPLICATION = 'truckshop.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'truckbase',
         'USER': 'dennyssolis',
-        'PASSWORD': 'Libertad',
+        'PASSWORD': 'Libertad26',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '5432',
     }
 }
 
@@ -148,3 +148,4 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media_root')
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/main/'
+LOGOUT_REDIRECT_URL = "/"
