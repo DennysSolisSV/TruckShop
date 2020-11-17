@@ -27,24 +27,36 @@
   <div class="nav-wrapper">
     <h6 class="main-sidebar__nav-title">Work Orders</h6>
     <ul class="nav nav--no-borders flex-column">
-      <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle " data-toggle="dropdown" href="{% url 'work_orders:index' %}" role="button" aria-haspopup="false" aria-expanded="false">
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'work_orders:index' %}">
+          <i class="material-icons">&#xE889;</i>
+          <span>Transaction History</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'work_orders:create' %}">
+          <i class="material-icons">&#xE917;</i>
+          <span>Create Work Order</span>
+        </a>
+      </li>
+      <!-- <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle " data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
             <i class="material-icons">&#xE917;</i>
             <span>Work Orders</span>
           </a>
           <div class="dropdown-menu dropdown-menu-small">
-            <a class="dropdown-item " href="{% url 'work_orders:create' %}">Create new</a>
+            <a class="dropdown-item " href="">Create new</a>
           </div>
-      </li>
+      </li> -->
     </ul>
-    <h6 class="main-sidebar__nav-title">Templates</h6>
+    <h6 class="main-sidebar__nav-title">Accounts</h6>
     <ul class="nav nav--no-borders flex-column">
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle " data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
           <i class="material-icons">&#xE7FD;</i>
           <span>User Account</span>
         </a>
-        <div class="dropdown-menu dropdown-menu-small">
+        <!-- <div class="dropdown-menu dropdown-menu-small">
           <a class="dropdown-item " href="user-profile.html">User Profile</a>
           <a class="dropdown-item " href="user-profile-lite.html">User Profile Lite</a>
           <a class="dropdown-item " href="edit-user-profile.html">Edit User Profile</a>
@@ -52,9 +64,9 @@
           <a class="dropdown-item " href="register.html">Register</a>
           <a class="dropdown-item " href="forgot-password.html">Forgot Password</a>
           <a class="dropdown-item " href="change-password.html">Change Password</a>
-        </div>
+        </div> -->
       </li>
-      <li class="nav-item dropdown">
+      <!-- <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle " data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
           <i class="material-icons">&#xE2C7;</i>
           <span>File Managers</span>
@@ -64,12 +76,7 @@
           <a class="dropdown-item " href="file-manager-cards.html">Files - Cards View</a>
         </div>
       </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="transaction-history.html">
-          <i class="material-icons">&#xE889;</i>
-          <span>Transaction History</span>
-        </a>
-      </li>
+      
       <li class="nav-item">
         <a class="nav-link " href="calendar.html">
           <i class="material-icons">calendar_today</i>
@@ -87,9 +94,9 @@
           <i class="material-icons">error</i>
           <span>Errors</span>
         </a>
-      </li>
+      </li> -->
     </ul>
-    <h6 class="main-sidebar__nav-title">Components</h6>
+    <!-- <h6 class="main-sidebar__nav-title">Components</h6>
     <ul class="nav nav--no-borders flex-column">
       <li class="nav-item">
         <a class="nav-link " href="components-overview.html">
@@ -124,7 +131,7 @@
           <span>Icon Sidebar</span>
         </a>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </aside>
 		<!-- End Main Sidebar -->
