@@ -99,10 +99,12 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
     template_name = 'task_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was added.'
+    part = ""
 
     def form_valid(self, form):
+        print("entro")
         # check if the part is in the task
-        part = form.cleaned_data['part']
+        self.part = form.cleaned_data['part']
         quantity = form.cleaned_data['quantity']
         obj_part = Part.objects.get(part_number=part)
         task = Task.objects.get(pk=self.kwargs.get('pk'))
@@ -131,7 +133,7 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         # Modal title
         context = {
-            "title": "Add Part",
+            "part": self.part,
             "button": "Add"
         }
         context.update(kwargs)
