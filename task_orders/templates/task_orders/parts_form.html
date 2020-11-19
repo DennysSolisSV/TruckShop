@@ -21,7 +21,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                           {% if obj %} Edit {% else %} Add {% endif %} Parts
                       </div>
-                      {{obj}}
                       <div class="dropdown-divider"></div>
                       
                       <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
@@ -48,7 +47,7 @@
                   </div>
                   <div class="col-auto">
                     <div class="col">
-                      <button type="Submit" class="btn btn-primary"><span class="fa fa-save"></span> Save</button>
+                      <button type="submit" class="btn btn-primary"><span class="fa fa-save"></span> Save</button>
                       <button type="button" class="btn btn-danger" onclick="return close_modal()">
                           Cancel
                       </button>

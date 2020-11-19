@@ -106,10 +106,10 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
         # check if the part is in the task
         self.part = form.cleaned_data['part']
         quantity = form.cleaned_data['quantity']
-        obj_part = Part.objects.get(part_number=part)
+        obj_part = Part.objects.get(part_number=self.part)
         task = Task.objects.get(pk=self.kwargs.get('pk'))
 
-        qs = PartsByTask.objects.filter(task_id=task.id, part_id=part)
+        qs = PartsByTask.objects.filter(task_id=task.id, part_id=self.part)
         if qs.exists():
             form.add_error(
                 'part', 'Incident with this part already in this task.')
