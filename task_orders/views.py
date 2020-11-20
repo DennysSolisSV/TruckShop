@@ -6,7 +6,7 @@ from django.views.generic import (
     CreateView, UpdateView,
     DeleteView
 )
-
+from django.contrib import messages
 
 from work_orders.forms import TaskForm, PartsByTaskForm
 from inventory.models import Part
@@ -99,20 +99,26 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
     template_name = 'task_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was added.'
-    part = ""
+    task_id = 0
+
+    def dispatch(self, request, *args, **kwargs):
+        self.task_id = self.kwargs.get('pk')
+        return super(AddPartsCreateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         print("entro")
         # check if the part is in the task
-        self.part = form.cleaned_data['part']
+        part = form.cleaned_data['part']
         quantity = form.cleaned_data['quantity']
-        obj_part = Part.objects.get(part_number=self.part)
-        task = Task.objects.get(pk=self.kwargs.get('pk'))
+        obj_part = Part.objects.get(part_number=part)
+        task = Task.objects.get(pk=self.task_id)
+        
 
-        qs = PartsByTask.objects.filter(task_id=task.id, part_id=self.part)
+        qs = PartsByTask.objects.filter(task=task, part=obj_part)
         if qs.exists():
-            form.add_error(
-                'part', 'Incident with this part already in this task.')
+            messages.add_message(self.request, messages.WARNING, "Incident with this part already in this task.!" )
+            # form.add_error(
+            #     'part', 'Incident with this part already in this task.')
             return self.form_invalid(form)
 
         if obj_part.available < quantity:
@@ -126,18 +132,18 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
         return super(AddPartsCreateView, self).form_valid(form)
 
     def get_success_url(self, **kwargs):
-        pk = self.kwargs.get('pk')
-        url = reverse("work_orders:update_task", kwargs={"pk": pk})
+        url = reverse("work_orders:update_task", kwargs={"pk": self.task_id})
         return url
 
     def get_context_data(self, **kwargs):
         # Modal title
         context = {
-            "part": self.part,
+            "task": self.task_id,
             "button": "Add"
         }
+        print(self.task_id)
         context.update(kwargs)
-        return super(AddPartsCreateView, self).get_context_data(**context)
+        return super().get_context_data(**context)
 
 
 class PartUpdateView(PassRequestMixin, SuccessMessageMixin,

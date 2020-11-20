@@ -26,7 +26,7 @@ urlpatterns = [
     path('task/<int:pk>/', TaskUpdateView.as_view(), name='update_task'),
     path('task/delete/<int:pk>/', TaskDeleteView.as_view(), name='delete_task'),
     path('update/timelabor/', task_time_labor_update_api, name='update_task_time_labor_ajax'),
-    path('used/part/<int:pk>/', AddPartsCreateView.as_view(), name='add_part'),
+    path('order/task/<int:pk>/add/part/', AddPartsCreateView.as_view(), name='add_part'),
     path('update/part/<int:pk>/', PartUpdateView.as_view(), name='update_part'),
     path('delete/part/<int:pk>/<int:id>/', PartDeleteView.as_view(), name='delete_part'),
 ]
