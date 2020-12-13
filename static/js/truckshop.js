@@ -1,4 +1,10 @@
 $(document).ready(function(){
+
+  //setup before functions
+  var typingTimer;                //timer identifier
+  var doneTypingInterval = 1000;  //time in ms, 5 second for example
+
+
  	
 	// get price and parts existence in part_task form
 
@@ -7,9 +13,19 @@ $(document).ready(function(){
     });// end change event
 
 
-  $(document).on('click', 'input:text[name=quantity]', function(event){
-      partTaskAjax();
+  $(document).on('keyup', 'input:text[name=quantity]', function(){
+    if (typingTimer) clearTimeout(typingTimer);                 // Clear if already set     
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
   });// end change event
+
+  $(document).on('keydown', 'input:text[name=quantity]', function(){
+    clearTimeout(typingTimer);
+  });// end change event
+
+  //user is "finished typing," do something
+  function doneTyping () {
+    partTaskAjax();
+  }
 
   
 
@@ -19,12 +35,20 @@ $(document).ready(function(){
     // getting data from the form
     var partForm = $(".parts_task");
     var actionEndPoint = partForm.attr("data-endpoint");
+    var task = partForm.attr("data-task");
     var httpMethod = partForm.attr("method");
     // asigned the selected value.
-    var formData = { id : $(".part_task_select option:selected").val() }
+    
     var partSpan = partForm.find(".Part");
     var quantitySpan = partForm.find(".Quantity");
-    var errorLabel = partForm.find(".invalid")
+    var buttonSubmit = partForm.find("#save");
+    var errorLabel = partForm.find("#errors")
+    var quantity = partForm.find("#id_quantity")
+
+    
+
+
+    var formData = { id : $(".part_task_select option:selected").val(), task : task,}
 
     errorLabel.html("")
       // ajax request
@@ -36,6 +60,24 @@ $(document).ready(function(){
           success: function(data){
             partSpan.html("Price: " + data.price)
             quantitySpan.html("Available: " + data.available)
+            
+            if (data.part_exist_in_task === "yes") {
+              buttonSubmit.attr('disabled', true)
+              errorLabel.html("Incident with this part already in this task.")
+            }
+            else {
+
+              if(quantity.val() <= data.available){
+                buttonSubmit.attr('disabled', false)
+              }
+              else {
+                buttonSubmit.attr('disabled', true)
+                errorLabel.html("Incident you do not have enough of this part")
+              }
+
+              
+            }
+              
           },
           error: function(errorData){
              partSpan.html("")

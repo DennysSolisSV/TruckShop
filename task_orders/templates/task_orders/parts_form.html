@@ -1,11 +1,11 @@
 <!--Form for Add and edit part to task -->
-
+{% load widget_tweaks %}
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
-      {% if obj %}
+      {% if part %}
       <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' part %}" data-endpoint="{% url 'inventory:part_price' %}">
       {% else %}
-      <form method="POST"  class="parts_task" action="{% url 'work_orders:add_part' task %}" data-endpoint="{% url 'inventory:part_price' %}">
+      <form method="POST"  class="parts_task" action="{% url 'work_orders:add_part' task %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}">
       {% endif %}
           {% csrf_token %}
           <div class="col-xl-12 col-md-12 mb-12">
@@ -23,7 +23,7 @@
                       </div>
                       <div class="dropdown-divider"></div>
                       
-                      <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+                      <div id= "errors" class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
                         {% for error in form.non_field_errors %}
                           {{ error }}
                         {% endfor %}
@@ -41,21 +41,13 @@
                           </div>
                         </div>
                       {% endfor %}
-                    </div>
-
-                    {% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-                    
-                      <div class="dropdown-divider"></div>
+                      
+                      </div>                    
+                  <div class="dropdown-divider"></div>
                   </div>
                   <div class="col-auto">
                     <div class="col">
-                      <button type="submit" class="btn btn-primary"><span class="fa fa-save"></span> Save</button>
+                      <button id="save" type="submit" class="btn btn-primary"><span class="fa fa-save"></span> Save</button>
                       <button type="button" class="btn btn-danger" onclick="return close_modal()">
                           Cancel
                       </button>

@@ -1,7 +1,7 @@
 from django.forms import ModelForm, TextInput, Select, Textarea
 from .models import WorkOrder, Task, PartsByTask
 from truck.models import Truck
-from bootstrap_modal_forms.mixins import PopRequestMixin, CreateUpdateAjaxMixin
+from bootstrap_modal_forms.forms import BSModalModelForm
 
 
 class WorkOrderForm(ModelForm):
@@ -77,7 +77,7 @@ class TaskForm(ModelForm):
         }
 
 
-class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
+class PartsByTaskForm(BSModalModelForm):
     class Meta:
         model = PartsByTask
         exclude = [
@@ -88,6 +88,9 @@ class PartsByTaskForm(PopRequestMixin, CreateUpdateAjaxMixin, ModelForm):
         ]
         widgets = {
             "part": Select(attrs={"class": "form-control part_task_select"}),
-            "quantity": TextInput(attrs={"class": "form-control", "autocomplete": "off"}),
+            # use oninput to allow only numeric
+            "quantity": TextInput(attrs={"class": "form-control", "autocomplete": "off", 
+                "placeholder": "0", "oninput": "this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
+            }),
 
         }

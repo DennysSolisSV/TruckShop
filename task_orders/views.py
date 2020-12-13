@@ -1,4 +1,3 @@
-from bootstrap_modal_forms.mixins import PassRequestMixin, DeleteAjaxMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -6,6 +5,14 @@ from django.views.generic import (
     CreateView, UpdateView,
     DeleteView
 )
+
+from bootstrap_modal_forms.generic import (
+  BSModalCreateView,
+  BSModalUpdateView,
+  BSModalReadView,
+  BSModalDeleteView
+)
+
 from django.contrib import messages
 
 from work_orders.forms import TaskForm, PartsByTaskForm
@@ -74,7 +81,7 @@ class TaskUpdateView(UpdateView):
         return url
 
 
-class TaskDeleteView(DeleteAjaxMixin, DeleteView):
+class TaskDeleteView(DeleteView):
     model = Task
     template_name = 'delete_form.html'
     success_message = 'Success: Task was deleted.'
@@ -95,7 +102,7 @@ class TaskDeleteView(DeleteAjaxMixin, DeleteView):
         return super(TaskDeleteView, self).get_context_data(**context)
 
 
-class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
+class AddPartsCreateView(BSModalCreateView):
     template_name = 'task_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was added.'
@@ -106,20 +113,11 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
         return super(AddPartsCreateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        print("entro")
         # check if the part is in the task
         part = form.cleaned_data['part']
         quantity = form.cleaned_data['quantity']
         obj_part = Part.objects.get(part_number=part)
         task = Task.objects.get(pk=self.task_id)
-        
-
-        qs = PartsByTask.objects.filter(task=task, part=obj_part)
-        if qs.exists():
-            messages.add_message(self.request, messages.WARNING, "Incident with this part already in this task.!" )
-            # form.add_error(
-            #     'part', 'Incident with this part already in this task.')
-            return self.form_invalid(form)
 
         if obj_part.available < quantity:
             form.add_error(
@@ -141,28 +139,32 @@ class AddPartsCreateView(PassRequestMixin, SuccessMessageMixin, CreateView):
             "task": self.task_id,
             "button": "Add"
         }
-        print(self.task_id)
         context.update(kwargs)
         return super().get_context_data(**context)
 
 
-class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
-                     UpdateView):
+class PartUpdateView(UpdateView):
 
     model = PartsByTask
     template_name = 'task_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was updated.'
+    obj_part = dict()
+    part_id = 0
+
+    def dispatch(self, request, *args, **kwargs):
+        self.part_id = self.kwargs.get('pk')
+        self.obj_part = Part.objects.get(id=self.part_id)
+        return super(PartUpdateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         part = form.cleaned_data['part']
-        obj_part = Part.objects.get(part_number=part)
         quantity = form.cleaned_data['quantity']
 
         obj = form.save(commit=False)
         obj.operation = 'Update'
 
-        if obj_part.available < quantity:
+        if self.obj_part.available < quantity:
             form.add_error(
                 'part', 'Incident you do not have enough this part')
             return self.form_invalid(form)
@@ -171,6 +173,7 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
     def get_context_data(self, **kwargs):
         # Modal title
         context = {
+            "part": self.part_id,
             "title": "Edit Part",
             "button": "Update"
         }
@@ -184,7 +187,7 @@ class PartUpdateView(PassRequestMixin, SuccessMessageMixin,
         return url
 
 
-class PartDeleteView(DeleteAjaxMixin, DeleteView):
+class PartDeleteView(DeleteView):
     model = PartsByTask
     template_name = 'delete_form.html'
     success_message = 'Success: Part was deleted.'
