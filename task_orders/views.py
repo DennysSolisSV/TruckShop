@@ -6,13 +6,6 @@ from django.views.generic import (
     DeleteView
 )
 
-from bootstrap_modal_forms.generic import (
-  BSModalCreateView,
-  BSModalUpdateView,
-  BSModalReadView,
-  BSModalDeleteView
-)
-
 from django.contrib import messages
 
 from work_orders.forms import TaskForm, PartsByTaskForm
@@ -102,7 +95,7 @@ class TaskDeleteView(DeleteView):
         return super(TaskDeleteView, self).get_context_data(**context)
 
 
-class AddPartsCreateView(BSModalCreateView):
+class AddPartsCreateView(CreateView):
     template_name = 'task_orders/parts_form.html'
     form_class = PartsByTaskForm
     success_message = 'Success: Part was added.'
@@ -118,11 +111,6 @@ class AddPartsCreateView(BSModalCreateView):
         quantity = form.cleaned_data['quantity']
         obj_part = Part.objects.get(part_number=part)
         task = Task.objects.get(pk=self.task_id)
-
-        if obj_part.available < quantity:
-            form.add_error(
-                'part', 'Incident you do not have enough this part')
-            return self.form_invalid(form)
 
         obj = form.save(commit=False)
         obj.task = task
@@ -154,6 +142,7 @@ class PartUpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.part_id = self.kwargs.get('pk')
+        print("part: " + str(self.part_id))
         self.obj_part = Part.objects.get(id=self.part_id)
         return super(PartUpdateView, self).dispatch(request, *args, **kwargs)
 

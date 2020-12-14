@@ -72,7 +72,7 @@ $(document).ready(function(){
               }
               else {
                 buttonSubmit.attr('disabled', true)
-                errorLabel.html("Incident you do not have enough of this part")
+                errorLabel.html("Incident you do not have enough of this part in stock")
               }
 
               

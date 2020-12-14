@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 
 from .views import (
     TaskCreateView,
@@ -7,5 +7,6 @@ from .views import (
 app_name = 'task_orders'
 
 urlpatterns = [
-    url(r'^create/$', TaskCreateView.as_view(), name='create'),
+    path('create/$', TaskCreateView.as_view(), name='create'),
+    
 ]

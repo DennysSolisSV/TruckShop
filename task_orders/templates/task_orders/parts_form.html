@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
-      {% if part %}
+      {% if obj %}
       <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' part %}" data-endpoint="{% url 'inventory:part_price' %}">
       {% else %}
       <form method="POST"  class="parts_task" action="{% url 'work_orders:add_part' task %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}">

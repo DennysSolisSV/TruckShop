@@ -1,7 +1,6 @@
 from django.forms import ModelForm, TextInput, Select, Textarea
 from .models import WorkOrder, Task, PartsByTask
 from truck.models import Truck
-from bootstrap_modal_forms.forms import BSModalModelForm
 
 
 class WorkOrderForm(ModelForm):
@@ -77,7 +76,7 @@ class TaskForm(ModelForm):
         }
 
 
-class PartsByTaskForm(BSModalModelForm):
+class PartsByTaskForm(ModelForm):
     class Meta:
         model = PartsByTask
         exclude = [
