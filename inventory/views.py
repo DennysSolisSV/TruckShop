@@ -8,22 +8,23 @@ def get_price_api(request):
     obj = Part.objects.get(pk=request.GET.get("id"))
     task = Task.objects.get(pk=request.GET.get("task"))
   
-    part_exist_in_task = valid_part_exist_in_task(obj,task)
-
+    part_exist_in_task, quantity = valid_part_exist_in_task(obj,task)
+    print(quantity)
 
     if obj:
         part_data = {
             "price": obj.price,
             "available": obj.available,
             "part_exist_in_task": part_exist_in_task,
+            "quantity": quantity,
         }
     return JsonResponse(part_data)
 
 
 def valid_part_exist_in_task(obj, task):
-    parts_by_task = PartsByTask.objects.filter(task=task, part = obj)
+    parts = PartsByTask.objects.get(task=task, part = obj)
 
-    if parts_by_task:
-        return ("yes")
+    if parts:
+        return ("yes", parts.quantity)
     else:
-        return ("no")
+        return ("no", 0)

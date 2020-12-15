@@ -138,12 +138,11 @@ class PartUpdateView(UpdateView):
     form_class = PartsByTaskForm
     success_message = 'Success: Part was updated.'
     obj_part = dict()
-    part_id = 0
+    partbytask_id = 0
 
     def dispatch(self, request, *args, **kwargs):
-        self.part_id = self.kwargs.get('pk')
-        print("part: " + str(self.part_id))
-        self.obj_part = Part.objects.get(id=self.part_id)
+        self.partbytask_id = self.kwargs.get('pk')
+        self.obj_part = PartsByTask.objects.get(id=self.partbytask_id)
         return super(PartUpdateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -153,17 +152,11 @@ class PartUpdateView(UpdateView):
         obj = form.save(commit=False)
         obj.operation = 'Update'
 
-        if self.obj_part.available < quantity:
-            form.add_error(
-                'part', 'Incident you do not have enough this part')
-            return self.form_invalid(form)
-        return super(PartUpdateView, self).form_valid(form)
-
     def get_context_data(self, **kwargs):
         # Modal title
         context = {
-            "part": self.part_id,
-            "title": "Edit Part",
+            "partbytask": self.partbytask_id,
+            "task": self.obj_part.task.id,
             "button": "Update"
         }
         context.update(kwargs)

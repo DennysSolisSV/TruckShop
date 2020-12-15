@@ -2,8 +2,8 @@
 {% load widget_tweaks %}
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
-      {% if obj %}
-      <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' part %}" data-endpoint="{% url 'inventory:part_price' %}">
+      {% if partbytask %}
+      <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' partbytask %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}" data-update="yes">
       {% else %}
       <form method="POST"  class="parts_task" action="{% url 'work_orders:add_part' task %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}">
       {% endif %}
@@ -19,7 +19,7 @@
                   <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                          {% if obj %} Edit {% else %} Add {% endif %} Parts  
+                          {% if partbytask%} Edit {% else %} Add {% endif %} Parts  
                       </div>
                       <div class="dropdown-divider"></div>
                       

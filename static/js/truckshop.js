@@ -12,6 +12,10 @@ $(document).ready(function(){
       partTaskAjax();		
     });// end change event
 
+  $(document).on('click', 'input:text[name=quantity]', function(event) {
+    partTaskAjax();		
+  });// end change event
+
 
   $(document).on('keyup', 'input:text[name=quantity]', function(){
     if (typingTimer) clearTimeout(typingTimer);                 // Clear if already set     
@@ -36,6 +40,7 @@ $(document).ready(function(){
     var partForm = $(".parts_task");
     var actionEndPoint = partForm.attr("data-endpoint");
     var task = partForm.attr("data-task");
+    var update = partForm.attr("data-update");
     var httpMethod = partForm.attr("method");
     // asigned the selected value.
     
@@ -48,7 +53,7 @@ $(document).ready(function(){
     
 
 
-    var formData = { id : $(".part_task_select option:selected").val(), task : task,}
+    var formData = { id : $(".part_task_select option:selected").val(), task : task, update: update}
 
     errorLabel.html("")
       // ajax request
@@ -58,15 +63,20 @@ $(document).ready(function(){
           method: "GET",
           data: formData,
           success: function(data){
+            // calc parts available
+            if (update === "yes"){
+              data.available = +data.available + +data.quantity;
+            }
+
             partSpan.html("Price: " + data.price)
             quantitySpan.html("Available: " + data.available)
             
-            if (data.part_exist_in_task === "yes") {
+            if (data.part_exist_in_task === "yes" && update != "yes") {
               buttonSubmit.attr('disabled', true)
               errorLabel.html("Incident with this part already in this task.")
             }
             else {
-
+              
               if(quantity.val() <= data.available){
                 buttonSubmit.attr('disabled', false)
               }
