@@ -151,6 +151,7 @@ class PartUpdateView(UpdateView):
 
         obj = form.save(commit=False)
         obj.operation = 'Update'
+        return super(PartUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         # Modal title

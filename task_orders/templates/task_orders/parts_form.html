@@ -3,7 +3,7 @@
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
       {% if partbytask %}
-      <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' partbytask %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}" data-update="yes">
+      <form method="POST"  class="parts_task" action="{% url 'work_orders:update_part' partbytask %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}" data-partbytask="{{ partbytask }}">
       {% else %}
       <form method="POST"  class="parts_task" action="{% url 'work_orders:add_part' task %}" data-endpoint="{% url 'inventory:part_price' %}" data-task="{{ task }}">
       {% endif %}

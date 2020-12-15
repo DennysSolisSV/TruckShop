@@ -40,7 +40,7 @@ $(document).ready(function(){
     var partForm = $(".parts_task");
     var actionEndPoint = partForm.attr("data-endpoint");
     var task = partForm.attr("data-task");
-    var update = partForm.attr("data-update");
+    var partbytask = partForm.attr("data-partbytask");
     var httpMethod = partForm.attr("method");
     // asigned the selected value.
     
@@ -53,7 +53,12 @@ $(document).ready(function(){
     
 
 
-    var formData = { id : $(".part_task_select option:selected").val(), task : task, update: update}
+    var formData = { 
+      id : $(".part_task_select option:selected").val(), 
+      task : task, 
+      partbytask: partbytask,
+
+    }
 
     errorLabel.html("")
       // ajax request
@@ -63,17 +68,18 @@ $(document).ready(function(){
           method: "GET",
           data: formData,
           success: function(data){
-            // calc parts available
-            if (update === "yes"){
+
+            // calc parts available that incluide the quantity save it before.
+            if (partbytask){
               data.available = +data.available + +data.quantity;
             }
 
             partSpan.html("Price: " + data.price)
             quantitySpan.html("Available: " + data.available)
             
-            if (data.part_exist_in_task === "yes" && update != "yes") {
+            if (data.part_exist_in_task === "yes") {
               buttonSubmit.attr('disabled', true)
-              errorLabel.html("Incident with this part already in this task.")
+              errorLabel.html("This part is already in this task.")
             }
             else {
               
@@ -82,7 +88,7 @@ $(document).ready(function(){
               }
               else {
                 buttonSubmit.attr('disabled', true)
-                errorLabel.html("Incident you do not have enough of this part in stock")
+                errorLabel.html("Not enough parts in stock")
               }
 
               
@@ -98,6 +104,11 @@ $(document).ready(function(){
     }
   }// end partTaskAjax
 
+
+
+
+
+  
   // updating time labor in task
   var taskForm = $(".task-form");
   var timeLaborInput = taskForm.find("[name='time_labor']");
@@ -157,4 +168,3 @@ $(document).ready(function(){
 
 
 
-// el boton cancelar del detalle task

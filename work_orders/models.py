@@ -164,8 +164,13 @@ class PartsByTask(models.Model):
         default=0.00, max_digits=100, decimal_places=2)
     operation = models.CharField(max_length=10, null=True, blank=True)
 
+    class Meta:
+        unique_together = ('task', 'part',)
+
     def __str__(self):
         return str(self.part)
+
+    
 
 
 def pre_save_partsbytask_receiver(sender, instance, *args, **kwargs):
