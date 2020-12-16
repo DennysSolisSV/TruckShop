@@ -2,16 +2,15 @@ $(document).ready(function(){
 
   //setup before functions
   var typingTimer;                //timer identifier
-  var doneTypingInterval = 1000;  //time in ms, 5 second for example
-
-
+  var doneTypingInterval = 700;  //time in ms, 5 second for example
  	
 	// get price and parts existence in part_task form
 
 	$(document).on('change', '.part_task_select', function(event) {
       partTaskAjax();		
-    });// end change event
+  });// end change event
 
+ 
   $(document).on('click', 'input:text[name=quantity]', function(event) {
     partTaskAjax();		
   });// end change event
@@ -19,15 +18,17 @@ $(document).ready(function(){
 
   $(document).on('keyup', 'input:text[name=quantity]', function(){
     if (typingTimer) clearTimeout(typingTimer);                 // Clear if already set     
-    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    typingTimer = setTimeout(doneTypingPartTask, doneTypingInterval);
   });// end change event
+
 
   $(document).on('keydown', 'input:text[name=quantity]', function(){
     clearTimeout(typingTimer);
   });// end change event
 
+  
   //user is "finished typing," do something
-  function doneTyping () {
+  function doneTypingPartTask () {
     partTaskAjax();
   }
 
@@ -104,16 +105,13 @@ $(document).ready(function(){
     }
   }// end partTaskAjax
 
-
-
-
-
   
+
   // updating time labor in task
   var taskForm = $(".task-form");
   var timeLaborInput = taskForm.find("[name='time_labor']");
   var typingTimerL;
-  var typingIntervalL = 1000; 
+  var typingIntervalL = 700; 
   var taskBtn = taskForm.find("[type='submit']")
   var total_partSpan = taskForm.find("#id_total_parts");
   var total_laborSpan = taskForm.find("#id_total_labor");
@@ -121,7 +119,7 @@ $(document).ready(function(){
 
   $(document).on('keyup', 'input:text[name=time_labor]', function(){
     if (typingTimerL) clearTimeout(typingTimerL);                 // Clear if already set     
-    typingTimerL = setTimeout(doneTyping, doneTypingInterval);
+    typingTimerL = setTimeout(doneTypingLabor, doneTypingInterval);
   });// end change event
 
   $(document).on('keydown', 'input:text[name=time_labor]', function(){
@@ -129,7 +127,7 @@ $(document).ready(function(){
   });// end change event
 
   //user is "finished typing," do something
-  function doneTyping () {
+  function doneTypingLabor () {
     performUpdate();
   }
 
@@ -170,6 +168,7 @@ $(document).ready(function(){
           }
       }); // end ajax
   }
+  // end updating time labor 
 });
 
 

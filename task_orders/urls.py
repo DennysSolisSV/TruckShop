@@ -7,6 +7,6 @@ from .views import (
 app_name = 'task_orders'
 
 urlpatterns = [
-    path('create/$', TaskCreateView.as_view(), name='create'),
+    path('create/', TaskCreateView.as_view(), name='create'),
     
 ]

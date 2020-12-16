@@ -79,13 +79,19 @@
 					<div class="form-group row">
 						<label for="inputTime" class="col-sm-3 col-form-label">Time labor:</label>
 						<div class="col-sm-9">
-							{{ form.time_labor }}
+              <!-- {% if task_pk == 0 %}
+                <fieldset disabled="disabled">
+                  {{ form.time_labor }}
+                </fieldset>
+              {% else %} -->
+                {{ form.time_labor }}
+              <!-- {% endif %} -->
 						</div>
 					</div>
                     <div class="form-group row">
                       <label for="input_total_parts" class="col-sm-6 col-form-label">Total parts:</label>
                       <div class="col-sm-4">
-						{{ form.total_parts }}
+						            {{ form.total_parts }}
                       </div>
                   </div>
                   <div class="form-group row">
@@ -97,7 +103,7 @@
                   <div class="form-group row">
                       <label for="input_total_task" class="col-sm-6 col-form-label">Total task:</label>
                       <div class="col-sm-4">
-							{{ form.total_task }}
+							          {{ form.total_task }}
                       </div>
                   </div>
               </div>

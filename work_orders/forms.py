@@ -88,7 +88,7 @@ class PartsByTaskForm(ModelForm):
             'operation'
         ]
         widgets = {
-            "part": Select(attrs={"class": "form-control part_task_select"}),
+            "part": Select(attrs={"class": "form-control part_task_select", "id": "parttaskselect"}),
             # use oninput to allow only numeric
             "quantity": TextInput(attrs={"class": "form-control", "autocomplete": "off", 
                 "placeholder": "0", "oninput": "this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
