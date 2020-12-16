@@ -70,9 +70,9 @@ $(document).ready(function(){
           success: function(data){
 
             // calc parts available that incluide the quantity save it before.
-            if (partbytask){
+            //if (partbytask){
               data.available = +data.available + +data.quantity;
-            }
+            //}
 
             partSpan.html("Price: " + data.price)
             quantitySpan.html("Available: " + data.available)
@@ -112,37 +112,44 @@ $(document).ready(function(){
   // updating time labor in task
   var taskForm = $(".task-form");
   var timeLaborInput = taskForm.find("[name='time_labor']");
-  var typingTimer;
-  var typingInterval = 1000; // 0.5 second
+  var typingTimerL;
+  var typingIntervalL = 1000; 
   var taskBtn = taskForm.find("[type='submit']")
   var total_partSpan = taskForm.find("#id_total_parts");
   var total_laborSpan = taskForm.find("#id_total_labor");
   var total_taskSpan = taskForm.find("#id_total_task");
 
-  timeLaborInput.keyup(function(event){
-    // key released
-    clearTimeout(typingTimer)
+  $(document).on('keyup', 'input:text[name=time_labor]', function(){
+    if (typingTimerL) clearTimeout(typingTimerL);                 // Clear if already set     
+    typingTimerL = setTimeout(doneTyping, doneTypingInterval);
+  });// end change event
 
-    if (timeLaborInput.val() != ""){
-    typingTimer = setTimeout(performUpdate, typingInterval)
-    }
-  })
+  $(document).on('keydown', 'input:text[name=time_labor]', function(){
+    clearTimeout(typingTimerL);
+  });// end change event
 
-  timeLaborInput.keydown(function(event){
-    // key pressed limpia una variable de tiempo
-    clearTimeout(typingTimer)
-  })
+  //user is "finished typing," do something
+  function doneTyping () {
+    performUpdate();
+  }
+
 
   function performUpdate(){ 
     
     // getting data from the form
-    // var partForm = $(".parts_task");
     var actionEndPoint = taskForm.attr("data-endpoint");
-    var httpMethod = taskForm.attr("method");
     var taskPk = taskForm.attr("task-pk");
+
+    // check is input empty or add cero
+    if (timeLaborInput.val()===""){
+      time_labor = 0;
+    } else {
+      time_labor = timeLaborInput.val();
+    }
+
     // asigned the selected value.
     var formData = { 
-      time_labor : timeLaborInput.val(),
+      time_labor : time_labor,
       task_pk: taskPk 
     }
     
@@ -150,7 +157,7 @@ $(document).ready(function(){
     
       $.ajax({
           url: actionEndPoint,
-          method: httpMethod,
+          method: "GET",
           data: formData,
           success: function(data){
             total_partSpan.val(data.total_parts)

@@ -66,7 +66,9 @@ class TaskForm(ModelForm):
             "title": TextInput(attrs={"class": "form-control"}),
             "description": Textarea(attrs={"class": "form-control"}),
             "time_labor": TextInput(attrs={
-                'class': 'form-control', 'autocomplete': 'off', 'placeholder': '0.00'
+                'class': 'form-control', 'autocomplete': 'off', 
+                "placeholder": "0", 
+                "oninput": "this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" 
             }),
             "mechanic": Select(attrs={"class": "form-control"}),
             "status": Select(attrs={"class": "form-control"}),

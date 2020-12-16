@@ -145,27 +145,27 @@ def check_group(user, name_group):
 
 
 def task_time_labor_update_api(request):
-    time_labor = request.POST.get("time_labor")
-    task_pk = request.POST.get("task_pk")
-    print(task_pk)
-    if not time_labor.isalpha():
-        if task_pk != '0':
-            qs = Task.objects.get(pk=task_pk)
-            qs.time_labor = time_labor
-            qs.save()
+    time_labor = request.GET.get("time_labor")
+    task_pk = request.GET.get("task_pk")
+    
+    
+    qs = Task.objects.get(pk=task_pk)
+    qs.time_labor = time_labor
+    qs.save()
 
-            task_data = {
-                "total_parts": qs.total_parts,
-                "total_labor": qs.total_labor,
-                "total_task": qs.total_task
-            }
-        else:
-            total_labor = Decimal(time_labor) * 125
-            task_data = {
-                "total_parts": '0',
-                "total_labor": total_labor,
-                "total_task": total_labor
-            }
+    task_data = {
+        "total_parts": qs.total_parts,
+        "total_labor": qs.total_labor,
+        "total_task": qs.total_task
+    }
+        #     }
+        # else:
+        #     total_labor = Decimal(time_labor) * 125
+        #     task_data = {
+        #         "total_parts": '0',
+        #         "total_labor": total_labor,
+        #         "total_task": total_labor
+        #     }
 
     return JsonResponse(task_data)
 
